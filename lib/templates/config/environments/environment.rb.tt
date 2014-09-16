@@ -1,0 +1,3 @@
+<%= config[:name] %>::Application.configure do
+  # config.seed_brokers = ["localhost:9092"]
+end
