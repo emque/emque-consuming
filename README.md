@@ -1,5 +1,5 @@
 [ ![Codeship Status for
-teamsnap/emque](https://www.codeship.io/projects/99fc0a70-df95-0131-c16b-1a928a3cd71e/status)](https://www.codeship.io/projects/25006)
+teamsnap/emque-consuming](https://www.codeship.io/projects/83d08620-2023-0132-2bcd-1a9cd91404f6/status)](https://www.codeship.io/projects/35892)
 
 # Emque
 
