@@ -8,6 +8,9 @@
 /test/tmp/
 /test/version_tmp/
 /tmp/
+kafka*/
+/log/*
+/logs/*
 
 ## Specific to RubyMotion:
 .dat*
