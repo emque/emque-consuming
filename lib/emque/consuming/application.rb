@@ -4,6 +4,8 @@ require_relative "consumer"
 require_relative "actor"
 require_relative "launcher"
 require_relative "router"
+require_relative "worker"
+require_relative "fetcher"
 
 def emque_autoload(klass, file)
   Kernel.autoload(klass, file)
@@ -26,7 +28,7 @@ module Emque
         )
 
         app_name = subclass.to_s.underscore.gsub("/application","")
-        Emque::Consuming::Application.application.configuration.app_name = app_name
+        Emque::Consuming::Application.application.config.app_name = app_name
 
         subclass.topic_mapping = {}
         subclass.load_service!
@@ -42,11 +44,11 @@ module Emque
       end
 
       def self.configure
-        yield(configuration)
+        yield(config)
       end
 
-      def self.configuration
-        @configuration ||= Emque::Consuming::Configuration.new
+      def self.config
+        @config ||= Emque::Consuming::Configuration.new
       end
 
       def self.logger
@@ -87,9 +89,7 @@ module Emque
       end
 
       def shutdown
-        manager.shutdown
-        manager.cleanup
-        manager.terminate
+        manager.stop
       end
 
       private

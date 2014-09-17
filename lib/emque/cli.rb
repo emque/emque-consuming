@@ -64,8 +64,6 @@ module Emque
       if File.exist?(File.join(current_dir, "config", "application.rb"))
         require File.join(current_dir, "config", "application.rb")
         require "pry"
-        require_relative "console"
-        Object.send(:include, Emque::Console)
         Pry.start
       end
     end

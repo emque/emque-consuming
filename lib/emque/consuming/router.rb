@@ -10,26 +10,27 @@ module Emque
       end
 
       def topic(mapping, &block)
-        raise ArgumentError, "Exactly one mapping allowed per topic call." unless mapping.count == 1
         mapping = Mapping.new(mapping, &block)
-        mappings[mapping.topic.to_sym] = mapping
+        mappings[mapping.topic.to_sym] ||= []
+        mappings[mapping.topic.to_sym] << mapping
       end
 
       def route(topic, type, message)
-        mapping = mappings[topic.to_sym]
-        method = mapping.route(type.to_s)
+        mappings[topic.to_sym].each do |mapping|
+          method = mapping.route(type.to_s)
 
-        if method
-          consumer = mapping.consumer
+          if method
+            consumer = mapping.consumer
 
-          consumer.new.consume(method, message)
+            consumer.new(message: message).consume(method)
+          end
         end
       end
 
       def topic_mapping
-        mappings.inject({}) do |hash, (topic, mapping)|
+        mappings.inject({}) do |hash, (topic, maps)|
           hash.tap do |h|
-            h[topic] = mapping.consumer
+            h[topic] = maps.map(&:consumer)
           end
         end
       end
