@@ -1,3 +1,10 @@
+require_relative "configuration"
+require_relative "logging"
+require_relative "consumer"
+require_relative "actor"
+require_relative "launcher"
+require_relative "router"
+
 def emque_autoload(klass, file)
   Kernel.autoload(klass, file)
 end
@@ -7,6 +14,7 @@ module Emque
     class Application
       class << self
         attr_accessor :root, :topic_mapping, :application, :router
+        attr_writer :configuration
       end
 
       def self.inherited(subclass)
@@ -18,11 +26,9 @@ module Emque
         )
 
         app_name = subclass.to_s.underscore.gsub("/application","")
-        Emque::Consuming::Application.application.config.app_name = app_name
-        #Emque::Producer::Config.app_name = app_name
+        Emque::Consuming::Application.application.configuration.app_name = app_name
 
         subclass.topic_mapping = {}
-
         subclass.load_service!
       end
 
@@ -35,13 +41,12 @@ module Emque
         end
       end
 
-      def self.configure(&block)
-        instance_exec(&block)
-        #Emque::Producer::Config.seed_brokers = config.seed_brokers
+      def self.configure
+        yield(configuration)
       end
 
-      def self.config
-        @config ||= Configuration.new
+      def self.configuration
+        @configuration ||= Emque::Consuming::Configuration.new
       end
 
       def self.logger
@@ -62,11 +67,15 @@ module Emque
       def initialize
         ENV["EMQUE_ENV"] ||= "development"
         require "celluloid"
+        require_relative "manager"
         require_relative File.join(self.class.root, "config", "environments", "#{self.class.emque_env}.rb")
+
+        self.class.router ||= Emque::Consuming::Router.new
+        require_relative File.join(self.class.root, "config", "routes.rb")
       end
 
       def start(test_loop: 1)
-        self.manager = Manager.new(Emque::Application.application.router.topic_mapping)
+        self.manager = Manager.new(Emque::Consuming::Application.application.router.topic_mapping)
 
         unless $TESTING
           manager.async.start
@@ -91,10 +100,6 @@ module Emque
         @logger = ActiveSupport::Logger.new(logfile)
         @logger.formatter = Emque::LogFormatter.new
         @logger
-      end
-
-      def self.internal_logger
-        application.logger
       end
     end
   end

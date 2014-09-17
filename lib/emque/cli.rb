@@ -17,7 +17,7 @@ module Emque
 
       if File.exist?(File.join(current_dir, "config", "application.rb"))
         require_relative File.join(current_dir, "config", "application.rb")
-        Emque::Launcher.new(options).start
+        Emque::Consuming::Launcher.new(options).start
       end
     end
 
@@ -29,7 +29,7 @@ module Emque
 
       if File.exist?(File.join(current_dir, "config", "application.rb"))
         require_relative File.join(current_dir, "config", "application.rb")
-        Emque::Launcher.new(options).stop
+        Emque::Consuming::Launcher.new(options).stop
       end
     end
 

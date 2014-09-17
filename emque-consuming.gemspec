@@ -6,8 +6,8 @@ require 'emque/consuming/version'
 Gem::Specification.new do |spec|
   spec.name          = "emque-consuming"
   spec.version       = Emque::Consuming::VERSION
-  spec.authors       = []
-  spec.email         = []
+  spec.authors       = ["Emily", "Ryan Williams", "Dan"]
+  spec.email         = ["dev@teamsnap.com"]
   spec.summary       = %q{A gem for high-level interaction with Kafka}
   spec.description   = %q{}
   spec.homepage      = ""

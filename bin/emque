@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
 
-require "emque"
+require "emque-consuming"
 
 Emque::Cli.start(ARGV)
