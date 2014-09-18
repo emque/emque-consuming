@@ -31,19 +31,26 @@ module Emque
         end
 
         def handle_error(e, method:, message:)
-          Emque::Application.application.config.error_handlers.each do |handler|
+          context = {
+            :consumer => self.class.name,
+            :message => {
+              :current => message.values,
+              :original => message.original
+            },
+            :offset => message.offset,
+            :partition => message.partition,
+            :pipe_method => method,
+            :topic => message.topic
+          }
+
+          # log the error by default
+          Emque::Consuming.logger.error(context)
+          Emque::Consuming.logger.error e
+          Emque::Consuming.logger.error e.backtrace.join("\n") unless e.backtrace.nil?
+
+          Emque::Consuming.config.error_handlers.each do |handler|
             begin
-              handler.call(e, {
-                :consumer => self.class.name,
-                :message => {
-                  :current => message.values,
-                  :original => message.original
-                },
-                :offset => message.offset,
-                :partition => message.partition,
-                :pipe_method => method,
-                :topic => message.topic
-              })
+              handler.call(e, context)
             rescue => ex
               logger.error "Error hander raised an error"
               logger.error ex

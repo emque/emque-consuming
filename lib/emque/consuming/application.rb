@@ -6,6 +6,7 @@ require_relative "launcher"
 require_relative "router"
 require_relative "worker"
 require_relative "fetcher"
+require_relative "message"
 
 def emque_autoload(klass, file)
   Kernel.autoload(klass, file)
@@ -16,7 +17,7 @@ module Emque
     class Application
       class << self
         attr_accessor :root, :topic_mapping, :application, :router
-        attr_writer :configuration
+        attr_writer :config
       end
 
       def self.inherited(subclass)
@@ -51,10 +52,6 @@ module Emque
         @config ||= Emque::Consuming::Configuration.new
       end
 
-      def self.logger
-        @logger ||= initialize_logger
-      end
-
       def self.logfile
         @logfile ||= File.join(self.root, "log/#{emque_env}.log").tap do |path|
           directory = File.dirname(path)
@@ -62,13 +59,21 @@ module Emque
         end
       end
 
+      def self.logger
+        Emque::Consuming.logger
+      end
+
       def self.emque_env
         ENV["EMQUE_ENV"] || "development"
       end
 
       def initialize
-        ENV["EMQUE_ENV"] ||= "development"
-        require "celluloid"
+        initialize_logger
+        Emque::Consuming.logger.info "Application: initializing"
+
+        require "celluloid/autostart"
+        Celluloid.logger = Emque::Consuming.logger
+
         require_relative "manager"
         require_relative File.join(self.class.root, "config", "environments", "#{self.class.emque_env}.rb")
 
@@ -76,7 +81,13 @@ module Emque
         require_relative File.join(self.class.root, "config", "routes.rb")
       end
 
+      def initialize_logger
+        Emque::Consuming::Logging.initialize_logger(self.class.logfile)
+        Emque::Consuming.logger.level = self.class.config.log_level
+      end
+
       def start(test_loop: 1)
+        Emque::Consuming.logger.info "Application: starting"
         self.manager = Manager.new(Emque::Consuming::Application.application.router.topic_mapping)
 
         unless $TESTING
@@ -92,15 +103,13 @@ module Emque
         manager.stop
       end
 
+      def logger
+        self.class.logger
+      end
+
       private
 
       attr_accessor :manager
-
-      def self.initialize_logger
-        @logger = ActiveSupport::Logger.new(logfile)
-        @logger.formatter = Emque::LogFormatter.new
-        @logger
-      end
     end
   end
 end

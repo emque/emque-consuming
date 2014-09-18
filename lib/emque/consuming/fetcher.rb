@@ -4,8 +4,11 @@ module Emque
 
     class Fetcher
       include Emque::Consuming::Actor
-
       trap_exit :actor_died
+
+      def actor_died(actor, reason)
+        logger.error "Fetcher#actor_died: #{actor.inspect} died: #{reason}"
+      end
 
       def initialize(worker, topic)
         self.worker = worker
@@ -21,6 +24,7 @@ module Emque
       end
 
       def fetch
+        logger.debug "Fetcher#fetch"
         unless shutdown
           begin
             topic_consumer.fetch(:commit => false) do |partition, messages|
@@ -82,7 +86,7 @@ module Emque
       end
 
       def handle_error(e)
-        Emque::Application.application.config.error_handlers.each do |handler|
+        Emque::Consuming::Application.error_handlers.each do |handler|
           begin
             handler.call(e, nil)
           rescue => ex

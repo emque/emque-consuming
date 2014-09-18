@@ -1,4 +1,4 @@
-require "virtus/value_object"
+require "virtus"
 
 module Emque
   module Consuming

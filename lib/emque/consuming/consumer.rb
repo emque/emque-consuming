@@ -7,7 +7,7 @@ module Emque
     class BlockingFailure < StandardError; end
 
     class Consumer
-      include ::Emque::Consuming.consumer
+      #include ::Emque::Consuming.consumer
 
       def process(message)
         pipe(message, :through => [:parse, :validate, :route])
@@ -23,7 +23,7 @@ module Emque
       end
 
       def route(message)
-        Emque::Application.application.router.route(
+        Emque::Consuming::Application.application.router.route(
           message.topic,
           message.values.fetch(:metadata).fetch(:type),
           message
@@ -31,12 +31,7 @@ module Emque
       end
 
       def validate(message)
-        message.tap do |msg|
-          if message.values.fetch(:partition_key)
-            # NOTE: still don't understand why...
-            raise Emque::Consuming::BlockingFailure
-          end
-        end
+        message
       end
     end
   end

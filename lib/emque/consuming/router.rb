@@ -22,7 +22,7 @@ module Emque
           if method
             consumer = mapping.consumer
 
-            consumer.new(message: message).consume(method)
+            consumer.new.consume(method, message)
           end
         end
       end

@@ -2,6 +2,13 @@ module Emque
   module Consuming
     class Worker
       include Emque::Consuming::Actor
+      trap_exit :actor_died
+
+      attr_accessor :topic
+
+      def actor_died(actor, reason)
+        logger.error "Worker#actor_died: #{actor.inspect} died: #{reason}"
+      end
 
       def initialize(topic)
         self.topic = topic
@@ -12,19 +19,21 @@ module Emque
       end
 
       def start
+        logger.debug "Worker#start"
         work
       end
 
       def stop
-        logger.info "#{name} stopping..."
+        logger.info "Worker: #{name} stopping..."
 
         self.shutdown = true
         fetcher.stop
 
-        logger.info "#{name} stopped"
+        logger.info "Worker: #{name} stopped"
       end
 
-      def receive_work(partition, messages)
+      def push_work(partition, messages)
+        logger.debug "Worker#push_work"
         if messages.size > 0
           logger.info "Worker received #{messages.count} " +
                       "messages on partition #{partition}"
@@ -41,6 +50,7 @@ module Emque
       attr_accessor :name, :consumer_klass, :fetcher, :shutdown, :work_queues
 
       def fetch_work
+        logger.debug "Worker#fetch_work"
         partition, queue = next_job
 
         if queue
@@ -60,12 +70,13 @@ module Emque
       end
 
       def work
+        logger.debug "Worker#work"
         unless shutdown
           job = fetch_work
 
           if job.is_a?(Hash)
             logger.info "#{name} processing message #{job[:message].value} " +
-                        "from partition #{job[:partition]}"
+              "from partition #{job[:partition]}"
 
             fetcher.async.commit(job[:partition], job[:message].offset)
 
@@ -76,7 +87,7 @@ module Emque
               :topic => job[:message].topic.to_sym
             )
 
-            ::Emque::Comsuming::Consumer.new.consume(:process, message)
+            ::Emque::Consuming::Consumer.new.consume(:process, message)
 
             after(0) { work }
           else

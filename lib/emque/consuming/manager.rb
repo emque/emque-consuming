@@ -2,6 +2,11 @@ module Emque
   module Consuming
     class Manager
       include Emque::Consuming::Actor
+      trap_exit :actor_died
+
+      def actor_died(actor, reason)
+        logger.error "Manager#actor_died: #{actor.inspect} died: #{reason}"
+      end
 
       def initialize(topic_mapping)
         logger.info "Manager: initializing"
@@ -11,7 +16,7 @@ module Emque
       end
 
       def start
-        logger.info "Manager: starting workers"
+        logger.info "Manager: starting #{@workers.count} workers"
 
         @workers.each do |worker|
           worker.async.start
@@ -19,7 +24,7 @@ module Emque
       end
 
       def stop
-        logger.info "Manager: stopping workers"
+        logger.info "Manager: stopping #{@workers.count} workers"
 
         self.shutdown = true
 
@@ -45,9 +50,6 @@ module Emque
         }
       end
 
-      def logger
-        Emque::Consuming.logger
-      end
     end
   end
 end
