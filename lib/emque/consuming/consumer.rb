@@ -10,7 +10,7 @@ module Emque
       #include ::Emque::Consuming.consumer
 
       def process(message)
-        pipe(message, :through => [:parse, :validate, :route])
+        pipe(message, :through => [:parse, :route])
       end
 
       private
@@ -28,10 +28,6 @@ module Emque
           message.values.fetch(:metadata).fetch(:type),
           message
         )
-      end
-
-      def validate(message)
-        message
       end
     end
   end
