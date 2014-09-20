@@ -1,3 +1,5 @@
+require "logger"
+
 module Emque
   module Consuming
     class Configuration

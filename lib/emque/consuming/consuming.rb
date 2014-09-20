@@ -1,5 +1,4 @@
-require_relative "configuration"
-require_relative "logging"
+require "emque/consuming/logging"
 
 module Emque
   module Consuming
