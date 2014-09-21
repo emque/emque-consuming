@@ -1,12 +1,10 @@
 require "emque/consuming/configuration"
 require "emque/consuming/logging"
-require_relative "consumer"
-require_relative "actor"
-require_relative "launcher"
-require_relative "router"
-require_relative "worker"
-require_relative "fetcher"
-require_relative "message"
+require "emque/consuming/consumer"
+require "emque/consuming/actor"
+require "emque/consuming/launcher"
+require "emque/consuming/router"
+require "emque/consuming/message"
 
 def emque_autoload(klass, file)
   Kernel.autoload(klass, file)
@@ -72,10 +70,12 @@ module Emque
         initialize_logger
         logger.info "Application: initializing"
 
-        require "celluloid/autostart"
+        require "celluloid"
         Celluloid.logger = Emque::Consuming.logger
 
+        require_relative "worker"
         require_relative "manager"
+        require_relative "fetcher"
 
         self.class.router ||= Emque::Consuming::Router.new
         require_relative File.join(self.class.root, "config", "routes.rb")
