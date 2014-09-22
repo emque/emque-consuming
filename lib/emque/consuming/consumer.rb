@@ -7,7 +7,7 @@ module Emque
     class BlockingFailure < StandardError; end
 
     class Consumer
-      #include ::Emque::Consuming.consumer
+      include ::Emque::Consuming.consumer
 
       def process(message)
         pipe(message, :through => [:parse, :route])
