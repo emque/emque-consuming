@@ -1,85 +1,33 @@
 require "active_support/core_ext"
+require "oj"
+require_relative "consumer/common"
 
 module Emque
   module Consuming
-    module Consumer
-      module ClassMethods
-        def inherited(klass)
-          klass.send(:before_filters=, (before_filters || []).dup)
-          klass.send(:after_filters=, (after_filters || []).dup)
-        end
+    class BlockingFailure < StandardError; end
 
-        def each_before_filter(action, &block)
-          self.before_filters = [] if !before_filters
-          each_filter(before_filters, action, &block)
-        end
+    class Consumer
+      include ::Emque::Consuming.consumer
 
-        def each_after_filter(action, &block)
-          self.after_filters = [] if !after_filters
-          each_filter(after_filters, action, &block)
-        end
-
-        private
-
-        attr_accessor :before_filters, :after_filters
-
-        def each_filter(filters, action)
-          filters.each do |filter|
-            if filter[:actions].include?(action.to_sym) || filter[:all]
-              yield(filter[:filter])
-            end
-          end
-        end
-
-        def before_all(name: nil, &filter)
-          before(:all => true, :name => name, &filter)
-        end
-
-        def before(*actions, all: false, name: nil, &filter)
-          self.before_filters = [] if !before_filters
-          add_filter(before_filters, actions, all, name, filter)
-        end
-
-        def after_all(name: nil, &filter)
-          after(:all => true, :name => name, &filter)
-        end
-
-        def after(*actions, all: false, name: nil, &filter)
-          self.after_filters = [] if !after_filters
-          add_filter(after_filters, actions, all, name, filter)
-        end
-
-        def add_filter(filters, actions, all, name, filter)
-          actions = actions.map(&:to_sym)
-
-          filters.push(
-            :actions => actions,
-            :name => name,
-            :filter => filter,
-            :all => all
-          )
-        end
+      def process(message)
+        pipe(message, :through => [:parse, :route])
       end
 
-      def self.included(base)
-        base.extend(ClassMethods)
-        base.send(:attr_reader, :message)
+      private
+
+      def parse(message)
+        message.with(
+          :values =>
+            Oj.load(message.original, :symbol_keys => true)
+        )
       end
 
-      def consume(handler_method, message)
-        @message = message
-
-        self.class.each_before_filter(handler_method) do |filter|
-          instance_exec(&filter)
-        end
-
-        value = send(handler_method)
-
-        self.class.each_after_filter(handler_method) do |filter|
-          instance_exec(&filter)
-        end
-
-        value
+      def route(message)
+        Emque::Consuming::Application.application.router.route(
+          message.topic,
+          message.values.fetch(:metadata).fetch(:type),
+          message
+        )
       end
     end
   end

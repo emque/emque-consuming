@@ -2,28 +2,54 @@ module Emque
   module Consuming
     class Manager
       include Emque::Consuming::Actor
-
       trap_exit :actor_died
 
       def actor_died(actor, reason)
-        Emque::Consuming.logger.error "#{actor.inspect} died: #{reason}"
+        logger.error "Manager#actor_died: #{actor.inspect} died: #{reason}"
       end
 
       def initialize(topic_mapping)
-        Emque::Consuming.logger.info "Manager: initializing"
+        logger.info "Manager: initializing"
+
+        self.topic_mapping = topic_mapping
+        initialize_workers
       end
 
       def start
-        Emque::Consuming.logger.info "Manager: starting workers"
+        logger.info "Manager: starting #{@workers.count} workers"
+
+        @workers.each do |worker|
+          worker.async.start
+        end
       end
 
-      def cleanup
-        Emque::Consuming.logger.info "Manager: cleaning up workers)"
+      def stop
+        logger.info "Manager: stopping #{@workers.count} workers"
+
+        self.shutdown = true
+
+        workers.each do |worker|
+          logger.info "Manager: stopping #{worker.topic} worker..."
+          worker.stop
+        end
+
+        logger.info "Manager: terminating"
+
+        terminate
       end
 
-      def shutdown
-        Emque::Consuming.logger.info "Manager: shutting down workers)"
+      private
+
+      attr_accessor :workers, :shutdown, :topic_mapping
+
+      def initialize_workers
+        self.workers = [].tap { |workers|
+          topic_mapping.keys.each do |topic|
+            workers << Emque::Consuming::Worker.new_link(topic)
+          end
+        }
       end
+
     end
   end
 end

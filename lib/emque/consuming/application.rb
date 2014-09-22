@@ -1,9 +1,10 @@
-require_relative "configuration"
-require_relative "logging"
-require_relative "consumer"
-require_relative "actor"
-require_relative "launcher"
-require_relative "router"
+require "emque/consuming/configuration"
+require "emque/consuming/logging"
+require "emque/consuming/consumer"
+require "emque/consuming/actor"
+require "emque/consuming/launcher"
+require "emque/consuming/router"
+require "emque/consuming/message"
 
 def emque_autoload(klass, file)
   Kernel.autoload(klass, file)
@@ -14,7 +15,6 @@ module Emque
     class Application
       class << self
         attr_accessor :root, :topic_mapping, :application, :router
-        attr_writer :configuration
       end
 
       def self.inherited(subclass)
@@ -26,7 +26,7 @@ module Emque
         )
 
         app_name = subclass.to_s.underscore.gsub("/application","")
-        Emque::Consuming::Application.application.configuration.app_name = app_name
+        Emque::Consuming::Application.application.config.app_name = app_name
 
         subclass.topic_mapping = {}
         subclass.load_service!
@@ -41,16 +41,12 @@ module Emque
         end
       end
 
-      def self.configure
-        yield(configuration)
+      def self.configure(&block)
+        instance_exec(&block)
       end
 
-      def self.configuration
-        @configuration ||= Emque::Consuming::Configuration.new
-      end
-
-      def self.logger
-        @logger ||= initialize_logger
+      def self.config
+        @config ||= Emque::Consuming::Configuration.new
       end
 
       def self.logfile
@@ -60,21 +56,38 @@ module Emque
         end
       end
 
+      def self.logger
+        Emque::Consuming.logger
+      end
+
       def self.emque_env
         ENV["EMQUE_ENV"] || "development"
       end
 
       def initialize
-        ENV["EMQUE_ENV"] ||= "development"
-        require "celluloid"
-        require_relative "manager"
         require_relative File.join(self.class.root, "config", "environments", "#{self.class.emque_env}.rb")
+
+        initialize_logger
+        logger.info "Application: initializing"
+
+        require "celluloid"
+        Celluloid.logger = Emque::Consuming.logger
+
+        require_relative "worker"
+        require_relative "manager"
+        require_relative "fetcher"
 
         self.class.router ||= Emque::Consuming::Router.new
         require_relative File.join(self.class.root, "config", "routes.rb")
       end
 
+      def initialize_logger
+        Emque::Consuming::Logging.initialize_logger(self.class.logfile)
+        Emque::Consuming.logger.level = self.class.config.log_level
+      end
+
       def start(test_loop: 1)
+        logger.info "Application: starting"
         self.manager = Manager.new(Emque::Consuming::Application.application.router.topic_mapping)
 
         unless $TESTING
@@ -87,20 +100,16 @@ module Emque
       end
 
       def shutdown
-        manager.shutdown
-        manager.cleanup
-        manager.terminate
+        manager.stop
+      end
+
+      def logger
+        self.class.logger
       end
 
       private
 
       attr_accessor :manager
-
-      def self.initialize_logger
-        @logger = ActiveSupport::Logger.new(logfile)
-        @logger.formatter = Emque::LogFormatter.new
-        @logger
-      end
     end
   end
 end
