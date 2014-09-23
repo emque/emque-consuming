@@ -49,13 +49,7 @@ module Emque
           Emque::Consuming.logger.error e.backtrace.join("\n") unless e.backtrace.nil?
 
           Emque::Consuming.config.error_handlers.each do |handler|
-            begin
-              handler.call(e, context)
-            rescue => ex
-              logger.error "Error hander raised an error"
-              logger.error ex
-              logger.error ex.backtrace.join("\n") unless ex.backtrace.nil?
-            end
+            handler.call(e, context)
           end
         end
       end
