@@ -23,7 +23,7 @@ module Emque
         def pipe(message, through: [])
           through.reduce(message) { |msg, method|
             begin
-              send(method, msg)
+              msg ? send(method, msg) : msg
             rescue => e
               handle_error(e, { method: method, message: msg })
             end
