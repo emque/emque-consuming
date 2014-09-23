@@ -1,3 +1,4 @@
+require "emque/consuming/application"
 require "emque/consuming/logging"
 
 module Emque
