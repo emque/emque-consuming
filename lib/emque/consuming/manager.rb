@@ -5,18 +5,16 @@ module Emque
       trap_exit :actor_died
 
       def actor_died(actor, reason)
-        logger.error "Manager#actor_died: #{actor.inspect} died: #{reason}"
+        logger.error "Manager: actor_died - #{actor.inspect} died: #{reason}"
       end
 
       def initialize(topic_mapping)
-        logger.info "Manager: initializing"
-
         self.topic_mapping = topic_mapping
         initialize_workers
       end
 
       def start
-        logger.info "Manager: starting #{@workers.count} workers"
+        logger.info "Manager: starting #{@workers.count} workers..."
 
         @workers.each do |worker|
           worker.async.start
@@ -24,16 +22,13 @@ module Emque
       end
 
       def stop
-        logger.info "Manager: stopping #{@workers.count} workers"
-
+        logger.info "Manager: stopping #{@workers.count} workers..."
         self.shutdown = true
 
         workers.each do |worker|
           logger.info "Manager: stopping #{worker.topic} worker..."
           worker.stop
         end
-
-        logger.info "Manager: terminating"
 
         terminate
       end

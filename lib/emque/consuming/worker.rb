@@ -7,7 +7,7 @@ module Emque
       attr_accessor :topic
 
       def actor_died(actor, reason)
-        logger.error "Worker#actor_died: #{actor.inspect} died: #{reason}"
+        logger.error "Worker: actor_died - #{actor.inspect} died: #{reason}"
       end
 
       def initialize(topic)
@@ -19,21 +19,17 @@ module Emque
       end
 
       def start
-        logger.debug "Worker#start"
+        logger.info "Worker: #{name} starting..."
         work
       end
 
       def stop
         logger.info "Worker: #{name} stopping..."
-
         self.shutdown = true
         fetcher.stop
-
-        logger.info "Worker: #{name} stopped"
       end
 
       def push_work(partition, messages)
-        logger.debug "Worker#push_work"
         if messages.size > 0
           logger.info "Worker received #{messages.count} " +
                       "messages on partition #{partition}"
@@ -50,7 +46,6 @@ module Emque
       attr_accessor :name, :consumer_klass, :fetcher, :shutdown, :work_queues
 
       def fetch_work
-        logger.debug "Worker#fetch_work"
         partition, queue = next_job
 
         if queue
@@ -70,7 +65,6 @@ module Emque
       end
 
       def work
-        logger.debug "Worker#work"
         unless shutdown
           job = fetch_work
 

@@ -7,7 +7,7 @@ module Emque
       trap_exit :actor_died
 
       def actor_died(actor, reason)
-        logger.error "Fetcher#actor_died: #{actor.inspect} died: #{reason}"
+        logger.error "Fetcher: actor_died - #{actor.inspect} died: #{reason}"
       end
 
       def initialize(worker, topic)
@@ -18,13 +18,13 @@ module Emque
       end
 
       def stop
+        logger.info "Fetcher: stopping..."
         self.shutdown = true
         topic_consumer.close
         terminate
       end
 
       def fetch
-        logger.debug "Fetcher#fetch"
         unless shutdown
           begin
             topic_consumer.fetch(:commit => false) do |partition, messages|
