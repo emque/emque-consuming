@@ -86,7 +86,12 @@ module Emque
       end
 
       def handle_error(e)
-        Emque::Consuming::Application.error_handlers.each do |handler|
+        # log the error by default
+        logger.error("Fetcher: error fetching message")
+        logger.error(e)
+        logger.error e.backtrace.join("\n") unless e.backtrace.nil?
+
+        Emque::Consuming.config.error_handlers.each do |handler|
           begin
             handler.call(e, nil)
           rescue => ex
