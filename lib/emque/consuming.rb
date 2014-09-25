@@ -1,6 +1,4 @@
-require "poseidon_cluster"
 require "virtus"
-
 require "emque/consuming/version"
 require "emque/consuming/consuming"
 

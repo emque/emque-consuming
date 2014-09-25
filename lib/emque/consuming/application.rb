@@ -12,7 +12,10 @@ end
 
 module Emque
   module Consuming
+    class ConfigurationError < StandardError; end
+
     class Application
+
       class << self
         attr_accessor :root, :topic_mapping, :application, :router
       end
@@ -73,9 +76,16 @@ module Emque
         require "celluloid"
         Celluloid.logger = Emque::Consuming.logger
 
-        require_relative "worker"
-        require_relative "manager"
-        require_relative "fetcher"
+        if consuming_adapter == :rabbitmq
+          require_relative "rabbitmq/manager"
+          require_relative "rabbitmq/worker"
+        elsif consuming_adapter == :kafka
+          require_relative "kafka/manager"
+          require_relative "kafka/worker"
+          require_relative "kafka/fetcher"
+        else
+          raise ConfigurationError, "Unknown consuming adapter"
+        end
 
         self.class.router ||= Emque::Consuming::Router.new
         require_relative File.join(self.class.root, "config", "routes.rb")
@@ -88,23 +98,29 @@ module Emque
 
       def start(test_loop: 1)
         logger.info "Application: starting"
-        self.manager = Manager.new(Emque::Consuming::Application.application.router.topic_mapping)
-
-        unless $TESTING
-          manager.async.start
+        if consuming_adapter == :rabbitmq
+          self.manager = Emque::Consuming::RabbitMq::Manager.new(
+            Emque::Consuming::Application.application.router.topic_mapping)
+        elsif consuming_adapter == :kafka
+          self.manager = Emque::Consuming::Kafka::Manager.new(
+            Emque::Consuming::Application.application.router.topic_mapping)
         else
-          test_loop.times do
-            manager.async.start
-          end
+          raise ConfigurationError, "Unknown consuming adapter"
         end
+        manager.async.start
       end
 
       def shutdown
+        logger.info "Application: shutting down"
         manager.stop
       end
 
       def logger
         self.class.logger
+      end
+
+      def consuming_adapter
+        Emque::Consuming::Application.application.config.consuming_adapter
       end
 
       private

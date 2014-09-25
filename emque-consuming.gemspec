@@ -8,28 +8,29 @@ Gem::Specification.new do |spec|
   spec.version       = Emque::Consuming::VERSION
   spec.authors       = ["Emily Dobervich", "Ryan Williams", "Dan Matthews"]
   spec.email         = ["dev@teamsnap.com"]
-  spec.summary       = %q{A gem for high-level interaction with Kafka}
-  spec.description   = %q{}
+  spec.summary       = %q{Microservices framework for Ruby}
+  spec.description   = %q{Consume and process messages from a variety of message brokers.}
   spec.homepage      = ""
-  spec.license       = ""
+  spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "celluloid"
-  spec.add_dependency "poseidon"
-  spec.add_dependency "poseidon_cluster"
-  spec.add_dependency "activesupport"
-  spec.add_dependency "thor"
-  spec.add_dependency "dante"
-  spec.add_dependency "oj"
-  spec.add_dependency "virtus"
+  spec.add_dependency "celluloid", "0.15.2"
+  spec.add_dependency "activesupport", "~> 4.1"
+  spec.add_dependency "thor", "~> 0.19.1"
+  spec.add_dependency "dante", "~> 0.2.0"
+  spec.add_dependency "oj", "~> 2.10.2"
+  spec.add_dependency "virtus", "~> 1.0.3"
 
   spec.add_development_dependency "bundler", "~> 1.5"
   spec.add_development_dependency "rake"
-  spec.add_development_dependency "rspec"
+  spec.add_development_dependency "rspec", "~> 3.1"
   spec.add_development_dependency "pry"
   spec.add_development_dependency "daemon_controller"
+  spec.add_development_dependency "poseidon", "0.0.4"
+  spec.add_development_dependency "poseidon_cluster", "~> 0.1.1"
+  spec.add_development_dependency "bunny", "~> 1.4.1"
 end

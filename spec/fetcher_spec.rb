@@ -1,7 +1,7 @@
 require "spec_helper"
-require "emque/consuming/fetcher"
+require "emque/consuming/kafka/fetcher"
 
-describe Emque::Consuming::Fetcher do
+describe Emque::Consuming::Kafka::Fetcher do
   describe "#fetch" do
   end
 end
