@@ -4,6 +4,7 @@ require "active_support/core_ext/string"
 module Emque
   class Cli < Thor
     include Thor::Actions
+    class UnknownApproach < StandardError; end
 
     def self.source_root
       File.expand_path(File.join(File.dirname(__FILE__), "..", "templates"))
@@ -17,7 +18,14 @@ module Emque
 
       if File.exist?(File.join(current_dir, "config", "application.rb"))
         require_relative File.join(current_dir, "config", "application.rb")
-        Emque::Consuming::Launcher.new(options).start
+        case Emque::Consuming.application.config.approach
+        when :kafka
+          Emque::Consuming::Launcher.new(options).start
+        when :http
+          Emque::Consuming::Http::Launcher.new(options).start
+        else
+          raise UnknownApproach
+        end
       end
     end
 
@@ -29,7 +37,14 @@ module Emque
 
       if File.exist?(File.join(current_dir, "config", "application.rb"))
         require_relative File.join(current_dir, "config", "application.rb")
-        Emque::Consuming::Launcher.new(options).stop
+        case Emque::Consuming.application.config.approach
+        when :kafka
+          Emque::Consuming::Launcher.new(options).stop
+        when :http
+          Emque::Consuming::Http::Launcher.new(options).stop
+        else
+          raise UnknownApproach
+        end
       end
     end
 

@@ -1,11 +1,14 @@
-require "emque/consuming/application"
+# TODO: break out the kafka specific code, conditionally include kafka or http
+require "emque/consuming/http/application"
 require "emque/consuming/logging"
 
 module Emque
   module Consuming
+    module Http; end
+
     class << self
       def application
-        Emque::Consuming::Application.application
+        Emque::Consuming::Http::Application.application
       end
 
       # The Configuration instance used to configure the Emque::Consuming environment

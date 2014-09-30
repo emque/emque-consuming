@@ -26,6 +26,9 @@ Gem::Specification.new do |spec|
   spec.add_dependency "dante"
   spec.add_dependency "oj"
   spec.add_dependency "virtus"
+  spec.add_dependency "sinatra"
+  spec.add_dependency "puma"
+  spec.add_dependency "rack-router"
 
   spec.add_development_dependency "bundler", "~> 1.5"
   spec.add_development_dependency "rake"
