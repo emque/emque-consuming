@@ -56,36 +56,31 @@ module Emque
         attr_accessor :worker, :topic, :shutdown, :topic_consumer
 
         def build_topic_consumer
-          pool = Poseidon::BrokerPool.new(
-            SecureRandom.hex,
-            Emque::Consuming::Application.application.config.kafka_options[:seed_brokers]
-          )
-
-          count = 0
-
-          while count < 4 do
-            break unless Poseidon::ClusterMetadata
-              .new
-              .tap { |m| m.update(pool.fetch_metadata([topic.to_s])) }
-              .metadata_for_topics([topic.to_s])[topic.to_s]
-              .struct
-              .error == 5
-
-            count += 1
-
-            raise MetadataFailure if count == 4
-
-            sleep 1
-          end
+          allow_kafka_to_assign_topic_leader
 
           app_name = Emque::Consuming::Application.application.config.app_name
-
           self.topic_consumer = Poseidon::ConsumerGroup.new(
             "#{app_name}_#{topic}_group",
-            Emque::Consuming::Application.application.config.kafka_options[:seed_brokers],
-            Emque::Consuming::Application.application.config.kafka_options[:zookeepers],
+            kafka_options[:seed_brokers],
+            kafka_options[:zookeepers],
             topic.to_s
           )
+        end
+
+        def allow_kafka_to_assign_topic_leader
+          pool = Poseidon::BrokerPool.new(SecureRandom.hex,
+                                          kafka_options[:seed_brokers])
+          count = 0
+          begin
+            sleep 1 if count == 1
+            metadata = Poseidon::ClusterMetadata.new.tap {|m| m.update pool.fetch_metadata([topic.to_s]) }
+            count += 1
+            error = metadata.metadata_for_topics([topic.to_s])[topic.to_s].struct.error_class
+          end while error == Poseidon::Errors::LeaderNotAvailable && count < 4
+        end
+
+        def kafka_options
+          Emque::Consuming::Application.application.config.kafka_options
         end
 
         def handle_error(e)
