@@ -2,6 +2,7 @@ ROOT_DIRECTORY = File.absolute_path(File.dirname(__FILE__) + "/../")
 
 require "test_cluster"
 require "spec_helper"
+require "poseidon"
 
 unless File.directory?(File.join(ROOT_DIRECTORY, "kafka_2.8.0-0.8.1"))
   puts "\033[0;32m"
