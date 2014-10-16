@@ -4,7 +4,7 @@ module Emque
   module Consuming
     class Configuration
       attr_accessor :app_name, :consuming_adapter, :kafka_options,
-        :rabbitmq_options, :error_handlers
+        :rabbitmq_options, :error_handlers, :error_limit
       attr_writer :log_level
 
       def initialize
@@ -14,6 +14,7 @@ module Emque
         @kafka_options      = { :seed_brokers => ["localhost:9092"],
                                 :zookeepers => ["localhost:2181"] }
         @error_handlers     = []
+        @error_limit        = 5
         @log_level          = nil
       end
 

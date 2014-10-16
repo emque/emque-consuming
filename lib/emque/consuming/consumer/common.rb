@@ -51,6 +51,8 @@ module Emque
           Emque::Consuming.config.error_handlers.each do |handler|
             handler.call(e, context)
           end
+
+          Emque::Consuming.application.notice_error(context)
         end
       end
     end

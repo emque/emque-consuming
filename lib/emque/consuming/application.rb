@@ -5,6 +5,7 @@ require "emque/consuming/actor"
 require "emque/consuming/launcher"
 require "emque/consuming/router"
 require "emque/consuming/message"
+require "emque/consuming/error_tracker"
 
 def emque_autoload(klass, file)
   Kernel.autoload(klass, file)
@@ -67,6 +68,8 @@ module Emque
         ENV["EMQUE_ENV"] || "development"
       end
 
+      attr_reader :error_tracker
+
       def initialize
         require_relative File.join(self.class.root, "config", "environments", "#{self.class.emque_env}.rb")
 
@@ -89,6 +92,10 @@ module Emque
 
         self.class.router ||= Emque::Consuming::Router.new
         require_relative File.join(self.class.root, "config", "routes.rb")
+
+        self.error_tracker = Emque::Consuming::ErrorTracker.new(
+          :limit => Emque::Consuming::Application.application.config.error_limit
+        )
       end
 
       def initialize_logger
@@ -123,9 +130,15 @@ module Emque
         Emque::Consuming::Application.application.config.consuming_adapter
       end
 
+      def notice_error(context)
+        error_tracker.notice_error_for(context)
+        shutdown if error_tracker.limit_reached?
+      end
+
       private
 
       attr_accessor :manager
+      attr_writer :error_tracker
     end
   end
 end
