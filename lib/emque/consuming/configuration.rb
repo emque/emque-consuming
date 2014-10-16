@@ -4,7 +4,7 @@ module Emque
   module Consuming
     class Configuration
       attr_accessor :app_name, :consuming_adapter, :kafka_options,
-        :rabbitmq_options, :error_handlers, :error_limit
+        :rabbitmq_options, :error_handlers, :error_limit, :error_expiration
       attr_writer :log_level
 
       def initialize
@@ -15,6 +15,7 @@ module Emque
                                 :zookeepers => ["localhost:2181"] }
         @error_handlers     = []
         @error_limit        = 5
+        @error_expiration   = 3600 # 60 minutes
         @log_level          = nil
       end
 

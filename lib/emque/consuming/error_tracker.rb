@@ -1,28 +1,34 @@
 require "digest"
-require "set"
 
 module Emque
   module Consuming
     class ErrorTracker
-      attr_reader :limit
+      attr_reader :limit, :expiration
 
-      def initialize(limit: 5)
+      def initialize(limit: 5, expiration: 3600)
         self.limit = limit
-        self.by_context = Set.new
+        self.expiration = expiration
+        self.occurrences = {}
       end
 
       def notice_error_for(context)
-        by_context.add(key_for(context))
+        occurrences[key_for(context)] = Time.now + expiration
       end
 
       def limit_reached?
-        by_context.count >= limit
+        recent_errors.keys.count >= limit
       end
 
       private
 
-      attr_accessor :by_context
-      attr_writer :limit
+      attr_accessor :occurrences
+      attr_writer :limit, :expiration
+
+      def recent_errors
+        occurrences.delete_if do |key, expiration_time|
+          expiration_time < Time.now
+        end
+      end
 
       def key_for(context)
         Digest::SHA256.hexdigest(context.to_s)

@@ -90,7 +90,8 @@ module Emque
         )
 
         self.error_tracker = Emque::Consuming::ErrorTracker.new(
-          :limit => Emque::Consuming::Application.application.config.error_limit
+          :expiration => config.error_expiration,
+          :limit => config.error_limit
         )
       end
 
@@ -114,7 +115,7 @@ module Emque
       end
 
       def consuming_adapter
-        Emque::Consuming::Application.application.config.consuming_adapter
+        config.consuming_adapter
       end
 
       def notice_error(context)
@@ -126,6 +127,10 @@ module Emque
 
       attr_accessor :manager
       attr_writer :error_tracker
+
+      def config
+        Emque::Consuming::Application.application.config
+      end
     end
   end
 end
