@@ -9,7 +9,7 @@ module Emque
 
       def start
         daemonize! if daemonize?
-        write_pid
+        pidfile = write_pid
 
         read_pipe, write_pipe = IO.pipe
 
@@ -20,7 +20,11 @@ module Emque
         end
 
         begin
-          self.application = Emque::Consuming::Application.application.new
+          self.application =
+            Emque::Consuming.application.instance =
+            Emque::Consuming.application.new
+
+          application.pidfile = pidfile
 
           application.start
 
@@ -116,6 +120,8 @@ module Emque
         at_exit do
           FileUtils.rm_f pid_file
         end
+
+        pid_file
       end
 
       def done(msg)

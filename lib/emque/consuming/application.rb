@@ -5,6 +5,8 @@ require "emque/consuming/actor"
 require "emque/consuming/launcher"
 require "emque/consuming/router"
 require "emque/consuming/message"
+require "emque/consuming/error_tracker"
+require "emque/consuming/adapter"
 
 def emque_autoload(klass, file)
   Kernel.autoload(klass, file)
@@ -17,13 +19,13 @@ module Emque
     class Application
 
       class << self
-        attr_accessor :root, :topic_mapping, :application, :router
+        attr_accessor :root, :topic_mapping, :application, :router, :instance
       end
 
       def self.inherited(subclass)
         Emque::Consuming::Application.application = subclass
         call_stack = caller_locations.map(&:path)
-        subclass.root = File.expand_path(
+        subclass.root ||= File.expand_path(
           "../..",
           call_stack.find { |call| call !~ %r{lib/emque} }
         )
@@ -67,6 +69,9 @@ module Emque
         ENV["EMQUE_ENV"] || "development"
       end
 
+      attr_reader :error_tracker
+      attr_accessor :pidfile
+
       def initialize
         require_relative File.join(self.class.root, "config", "environments", "#{self.class.emque_env}.rb")
 
@@ -76,19 +81,19 @@ module Emque
         require "celluloid"
         Celluloid.logger = Emque::Consuming.logger
 
-        if consuming_adapter == :rabbitmq
-          require_relative "rabbitmq/manager"
-          require_relative "rabbitmq/worker"
-        elsif consuming_adapter == :kafka
-          require_relative "kafka/manager"
-          require_relative "kafka/worker"
-          require_relative "kafka/fetcher"
-        else
-          raise ConfigurationError, "Unknown consuming adapter"
-        end
+        Emque::Consuming::Adapter.load(consuming_adapter)
 
         self.class.router ||= Emque::Consuming::Router.new
         require_relative File.join(self.class.root, "config", "routes.rb")
+
+        self.manager = Emque::Consuming::Adapter.manager(consuming_adapter).new(
+          Emque::Consuming::Application.application.router.topic_mapping
+        )
+
+        self.error_tracker = Emque::Consuming::ErrorTracker.new(
+          :expiration => config.error_expiration,
+          :limit => config.error_limit
+        )
       end
 
       def initialize_logger
@@ -98,15 +103,6 @@ module Emque
 
       def start(test_loop: 1)
         logger.info "Application: starting"
-        if consuming_adapter == :rabbitmq
-          self.manager = Emque::Consuming::RabbitMq::Manager.new(
-            Emque::Consuming::Application.application.router.topic_mapping)
-        elsif consuming_adapter == :kafka
-          self.manager = Emque::Consuming::Kafka::Manager.new(
-            Emque::Consuming::Application.application.router.topic_mapping)
-        else
-          raise ConfigurationError, "Unknown consuming adapter"
-        end
         manager.async.start
       end
 
@@ -120,12 +116,29 @@ module Emque
       end
 
       def consuming_adapter
-        Emque::Consuming::Application.application.config.consuming_adapter
+        config.consuming_adapter
+      end
+
+      def notice_error(context)
+        error_tracker.notice_error_for(context)
+        stop_via_launcher if error_tracker.limit_reached?
       end
 
       private
 
       attr_accessor :manager
+      attr_writer :error_tracker
+
+      def config
+        Emque::Consuming::Application.application.config
+      end
+
+      def stop_via_launcher
+        Launcher.new({
+          :pidfile => pidfile,
+          :timeout => 5
+        }).stop
+      end
     end
   end
 end

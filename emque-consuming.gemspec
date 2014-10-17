@@ -33,4 +33,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "poseidon", "0.0.4"
   spec.add_development_dependency "poseidon_cluster", "~> 0.1.1"
   spec.add_development_dependency "bunny", "~> 1.4.1"
+  spec.add_development_dependency "timecop", "~> 0.7.1"
 end
