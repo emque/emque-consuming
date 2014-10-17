@@ -52,7 +52,7 @@ module Emque
             handler.call(e, context)
           end
 
-          Emque::Consuming.application.notice_error(context)
+          Emque::Consuming.application.instance.notice_error(context)
         end
       end
     end

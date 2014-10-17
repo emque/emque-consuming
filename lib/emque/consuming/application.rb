@@ -19,7 +19,7 @@ module Emque
     class Application
 
       class << self
-        attr_accessor :root, :topic_mapping, :application, :router
+        attr_accessor :root, :topic_mapping, :application, :router, :instance
       end
 
       def self.inherited(subclass)
@@ -70,6 +70,7 @@ module Emque
       end
 
       attr_reader :error_tracker
+      attr_accessor :pidfile
 
       def initialize
         require_relative File.join(self.class.root, "config", "environments", "#{self.class.emque_env}.rb")
@@ -120,7 +121,7 @@ module Emque
 
       def notice_error(context)
         error_tracker.notice_error_for(context)
-        shutdown if error_tracker.limit_reached?
+        stop_via_launcher if error_tracker.limit_reached?
       end
 
       private
@@ -130,6 +131,13 @@ module Emque
 
       def config
         Emque::Consuming::Application.application.config
+      end
+
+      def stop_via_launcher
+        Launcher.new({
+          :pidfile => pidfile,
+          :timeout => 5
+        }).stop
       end
     end
   end

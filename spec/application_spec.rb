@@ -39,7 +39,7 @@ describe Emque::Consuming::Application do
       MockApp.config.error_limit = 2
       app = MockApp.new
 
-      expect(app).to_not receive(:shutdown)
+      expect(app).to_not receive(:stop_via_launcher)
 
       app.notice_error({ :test => 'failure' })
     end
@@ -48,7 +48,7 @@ describe Emque::Consuming::Application do
       MockApp.config.error_limit = 2
       app = MockApp.new
 
-      expect(app).to receive(:shutdown).exactly(1).times
+      expect(app).to receive(:stop_via_launcher).exactly(1).times
 
       app.notice_error({ :test => 'failure' })
       app.notice_error({ :test => 'another failure' })
