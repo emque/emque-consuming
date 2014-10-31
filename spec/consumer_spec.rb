@@ -20,7 +20,7 @@ class MyConsumer
   private
 
   def stop_pipe(message)
-    nil
+    message.with(:status => :stop)
   end
 
   def keep_pipe_going(message)
@@ -38,16 +38,18 @@ describe Emque::Consuming::Consumer do
     context "when continuing pipe" do
       it "calls all methods in the pipe chain" do
         consumer = MyConsumer.new
+        message = Emque::Consuming::Message.new
         expect(consumer).to receive(:another_method)
-        consumer.my_event "mymessage"
+        consumer.my_event message
       end
     end
 
     context "when stopping pipe" do
       it "stops after stop method" do
         consumer = MyConsumer.new
+        message = Emque::Consuming::Message.new
         expect(consumer).not_to receive(:another_method)
-        consumer.my_stop_event "mymessage"
+        consumer.my_stop_event message
       end
     end
   end
