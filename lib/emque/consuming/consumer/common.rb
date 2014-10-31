@@ -22,8 +22,10 @@ module Emque
 
         def pipe(message, through: [])
           through.reduce(message) { |msg, method|
+            break unless msg.continue?
+
             begin
-              msg ? send(method, msg) : msg
+              send(method, msg)
             rescue => e
               handle_error(e, { method: method, message: msg })
             end
