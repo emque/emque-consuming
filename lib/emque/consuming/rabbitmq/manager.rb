@@ -8,29 +8,35 @@ module Emque
         trap_exit :actor_died
 
         def actor_died(actor, reason)
-          logger.error "RabbitMQ Manager: actor_died - #{actor.inspect} died: #{reason}"
+          logger.error "RabbitMQ Manager: actor_died - #{actor.inspect} "+
+                       "died: #{reason}"
         end
 
-        def initialize(topic_mapping)
-          self.topic_mapping = topic_mapping
-          rabbit_uri = Emque::Consuming::Application.application.config.rabbitmq_options[:url]
+        def initialize(router)
+          self.router = router
+          rabbit_uri =
+            Emque::Consuming::Application
+              .application
+              .config
+              .rabbitmq_options[:url]
+
           @connection = Bunny.new rabbit_uri
           @connection.start
           initialize_workers
         end
 
         def start
-          logger.info "RabbitMQ Manager: starting #{@workers.count} workers..."
-          @workers.each do |worker|
+          logger.info "RabbitMQ Manager: starting #{worker_count} workers..."
+          workers(:flatten => true).each do |worker|
             worker.async.start
           end
         end
 
         def stop
-          logger.info "RabbitMQ Manager: stopping #{@workers.count} workers..."
+          logger.info "RabbitMQ Manager: stopping #{worker_count} workers..."
           self.shutdown = true
 
-          workers.each do |worker|
+          workers(:flatten => true).each do |worker|
             logger.info "RabbitMQ Manager: stopping #{worker.topic} worker..."
             worker.stop
           end
@@ -40,14 +46,28 @@ module Emque
 
         private
 
-        attr_accessor :workers, :shutdown, :topic_mapping
+        attr_accessor :shutdown, :router
+        attr_writer :workers
 
         def initialize_workers
-          self.workers = [].tap { |workers|
-            topic_mapping.keys.each do |topic|
-              workers << Emque::Consuming::RabbitMq::Worker.new_link(@connection, topic)
+          self.workers = {}.tap { |workers|
+            router.topic_mapping.keys.each do |topic|
+              workers[topic] ||= []
+              router.workers(topic).times do
+                workers[topic] <<
+                  Emque::Consuming::RabbitMq::Worker
+                    .new_link(@connection, topic)
+              end
             end
           }
+        end
+
+        def worker_count
+          workers(:flatten => true).size
+        end
+
+        def workers(flatten: false)
+          flatten ? @workers.values.flatten : @workers
         end
 
       end

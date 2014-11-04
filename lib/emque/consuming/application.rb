@@ -87,7 +87,7 @@ module Emque
         require_relative File.join(self.class.root, "config", "routes.rb")
 
         self.manager = Emque::Consuming::Adapter.manager(consuming_adapter).new(
-          Emque::Consuming::Application.application.router.topic_mapping
+          Emque::Consuming::Application.application.router
         )
 
         self.error_tracker = Emque::Consuming::ErrorTracker.new(
