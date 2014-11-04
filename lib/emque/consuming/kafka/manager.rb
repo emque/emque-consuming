@@ -9,8 +9,8 @@ module Emque
           logger.error "Kafka Manager: actor_died - #{actor.inspect} died: #{reason}"
         end
 
-        def initialize(topic_mapping)
-          self.topic_mapping = topic_mapping
+        def initialize(router)
+          self.topic_mapping = router.topic_mapping
           initialize_workers
         end
 
@@ -39,6 +39,7 @@ module Emque
         attr_accessor :workers, :shutdown, :topic_mapping
 
         def initialize_workers
+          # NOTE: this does not yet support multiple workers
           self.workers = [].tap { |workers|
             topic_mapping.keys.each do |topic|
               workers << Emque::Consuming::Kafka::Worker.new_link(topic)

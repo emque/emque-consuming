@@ -35,15 +35,20 @@ module Emque
         end
       end
 
+      def workers(topic)
+        mappings[topic.to_sym].map(&:workers).max
+      end
+
       private
 
       attr_accessor :mappings
 
       class Mapping
-        attr_reader :consumer, :topic
+        attr_reader :consumer, :topic, :workers
 
         def initialize(mapping, &block)
           self.topic = mapping.keys.first
+          self.workers = mapping.fetch(:workers, 1)
           self.consumer = mapping.values.first
           self.mapping = {}
 
@@ -61,7 +66,7 @@ module Emque
         private
 
         attr_accessor :mapping
-        attr_writer :consumer, :topic
+        attr_writer :consumer, :topic, :workers
       end
     end
   end
