@@ -44,6 +44,23 @@ module Emque
           @connection.stop
         end
 
+        def worker(topic:, command:)
+          if workers.has_key?(topic)
+            case command
+            when :down
+              worker = workers[topic].pop
+              worker.stop if worker
+            when :up
+              workers[topic] << new_worker(topic)
+              workers[topic].last.async.start
+            end
+          end
+        end
+
+        def workers(flatten: false)
+          flatten ? @workers.values.flatten : @workers
+        end
+
         private
 
         attr_accessor :shutdown, :router
@@ -54,20 +71,18 @@ module Emque
             router.topic_mapping.keys.each do |topic|
               workers[topic] ||= []
               router.workers(topic).times do
-                workers[topic] <<
-                  Emque::Consuming::RabbitMq::Worker
-                    .new_link(@connection, topic)
+                workers[topic] << new_worker(topic)
               end
             end
           }
         end
 
-        def worker_count
-          workers(:flatten => true).size
+        def new_worker(topic)
+          Emque::Consuming::RabbitMq::Worker.new_link(@connection, topic)
         end
 
-        def workers(flatten: false)
-          flatten ? @workers.values.flatten : @workers
+        def worker_count
+          workers(:flatten => true).size
         end
 
       end

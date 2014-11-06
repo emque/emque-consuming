@@ -4,7 +4,8 @@ module Emque
   module Consuming
     class Configuration
       attr_accessor :app_name, :consuming_adapter, :kafka_options,
-        :rabbitmq_options, :error_handlers, :error_limit, :error_expiration
+        :rabbitmq_options, :error_handlers, :error_limit, :error_expiration,
+        :status, :status_port, :status_host
       attr_writer :log_level
 
       def initialize
@@ -17,6 +18,9 @@ module Emque
         @error_limit        = 5
         @error_expiration   = 3600 # 60 minutes
         @log_level          = nil
+        @status_port        = 10000
+        @status_host        = "0.0.0.0"
+        @status             = :off # :on
       end
 
       def log_level

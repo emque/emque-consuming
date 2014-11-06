@@ -16,7 +16,11 @@ module Emque
       end
 
       def limit_reached?
-        recent_errors.keys.count >= limit
+        count >= limit
+      end
+
+      def count
+        recent_errors.keys.count
       end
 
       private
