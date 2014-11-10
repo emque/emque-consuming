@@ -20,6 +20,10 @@ module Emque
       def logger=(log)
         Emque::Consuming::Logging.logger = log
       end
+
+      def status
+        application.status
+      end
     end
   end
 end

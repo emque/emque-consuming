@@ -7,6 +7,7 @@ require "emque/consuming/router"
 require "emque/consuming/message"
 require "emque/consuming/error_tracker"
 require "emque/consuming/adapter"
+require "emque/consuming/status"
 
 def emque_autoload(klass, file)
   Kernel.autoload(klass, file)
@@ -19,7 +20,8 @@ module Emque
     class Application
 
       class << self
-        attr_accessor :root, :topic_mapping, :application, :router, :instance
+        attr_accessor :root, :topic_mapping, :application, :router, :instance,
+                      :status
       end
 
       def self.inherited(subclass)
@@ -69,7 +71,7 @@ module Emque
         ENV["EMQUE_ENV"] || "development"
       end
 
-      attr_reader :error_tracker
+      attr_reader :error_tracker, :manager
       attr_accessor :pidfile
 
       def initialize
@@ -94,6 +96,8 @@ module Emque
           :expiration => config.error_expiration,
           :limit => config.error_limit
         )
+
+        self.class.status = Emque::Consuming::Status.new(self)
       end
 
       def initialize_logger
@@ -104,10 +108,12 @@ module Emque
       def start(test_loop: 1)
         logger.info "Application: starting"
         manager.async.start
+        self.class.status.start if config.status == :on
       end
 
       def shutdown
         logger.info "Application: shutting down"
+        self.class.status.stop
         manager.stop
       end
 
@@ -126,8 +132,7 @@ module Emque
 
       private
 
-      attr_accessor :manager
-      attr_writer :error_tracker
+      attr_writer :error_tracker, :manager
 
       def config
         Emque::Consuming::Application.application.config
