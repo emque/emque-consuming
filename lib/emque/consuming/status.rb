@@ -16,6 +16,7 @@ module Emque
 
       def to_hsh
         {
+          :app => Emque::Consuming.application.config.app_name,
           :errors => {
             :count => service_app.error_tracker.count
           },
