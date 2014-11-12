@@ -1,3 +1,4 @@
+require "emque/consuming/status/controller"
 require "emque/consuming/status/tcp_handler"
 
 module Emque
@@ -18,7 +19,9 @@ module Emque
         {
           :app => Emque::Consuming.application.config.app_name,
           :errors => {
-            :count => service_app.error_tracker.count
+            :count => service_app.error_tracker.count,
+            :expire_after => service_app.error_tracker.expiration,
+            :limit => service_app.error_tracker.limit
           },
           :workers => {}.tap { |worker_stats|
             service_app.manager.workers.each { |topic, workers|
@@ -42,25 +45,9 @@ module Emque
         when "status"
           render_status
         when "control"
-          handle_control_request(req[2..-1])
-        else
-          render_404
-        end
-      end
-
-      def handle_control_request(args)
-        if args.is_a?(Array) &&
-           args[0] &&
-           args[1] &&
-           service_app.manager.workers.has_key?(args[0].to_sym)
-
-          service_app
-            .manager
-            .worker(topic: args[0].to_sym, command: args[1].to_sym)
-
-          render_status(
-            :message => "Processed command #{args[1]} for #{args[0]}"
-          )
+          controller =
+            Emque::Consuming::Status::Controller.new(req[2..-1], service_app)
+          controller.process ? render_status(controller.status) : render_404
         else
           render_404
         end

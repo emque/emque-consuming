@@ -3,7 +3,7 @@ require "digest"
 module Emque
   module Consuming
     class ErrorTracker
-      attr_reader :limit, :expiration
+      attr_accessor :occurrences, :limit, :expiration
 
       def initialize(limit: 5, expiration: 3600)
         self.limit = limit
@@ -24,9 +24,6 @@ module Emque
       end
 
       private
-
-      attr_accessor :occurrences
-      attr_writer :limit, :expiration
 
       def recent_errors
         occurrences.delete_if do |key, expiration_time|

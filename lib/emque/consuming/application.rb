@@ -127,6 +127,10 @@ module Emque
 
       def notice_error(context)
         error_tracker.notice_error_for(context)
+        verify_error_status
+      end
+
+      def verify_error_status
         stop_via_launcher if error_tracker.limit_reached?
       end
 
