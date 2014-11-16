@@ -2,45 +2,42 @@ module Emque
   module Consuming
     class AdapterConfigurationError < StandardError; end
 
-    module Adapter
-      def self.load(name)
-        fetch(name).load
+    module Adapters; end
+
+    class Adapter
+      extend Forwardable
+
+      attr_reader :name, :options
+
+      def_delegators :namespace, :default_options, :manager
+
+      def initialize(name, opts = {})
+        self.name = name
+        fetch_and_load
+        self.options = default_options.merge(opts)
       end
 
-      def self.manager(name)
-        fetch(name).manager
-      end
+      private
 
-      def self.fetch(name)
-        const_name = "Emque::Consuming::Adapter::#{name.to_s.capitalize}"
-        if const_defined?(const_name)
-          const_name.constantize
-        else
-          raise AdapterConfigurationError, "Unknown consuming adapter"
-        end
-      end
+      attr_writer :name, :options
+      attr_accessor :namespace
 
-      module Kafka
-        def self.load
-          require_relative "kafka/manager"
-          require_relative "kafka/worker"
-          require_relative "kafka/fetcher"
+      def fetch_and_load
+        klass = name.to_s.camelize
+
+        unless Emque::Consuming::Adapters.const_defined?(klass)
+          require "emque/consuming/adapters/#{name}"
         end
 
-        def self.manager
-          Emque::Consuming::Kafka::Manager
-        end
-      end
+        self.namespace =
+          "Emque::Consuming::Adapters::#{klass}".constantize
 
-      module Rabbitmq
-        def self.load
-          require_relative "rabbitmq/manager"
-          require_relative "rabbitmq/worker"
-        end
-
-        def self.manager
-          Emque::Consuming::RabbitMq::Manager
-        end
+        namespace.load
+      rescue LoadError
+        raise AdapterConfigurationError, "Unable to load requested adapter"
+      rescue NameError => e
+        $stdout.puts e.inspect
+        raise AdapterConfigurationError, "Unknown consuming adapter"
       end
     end
   end

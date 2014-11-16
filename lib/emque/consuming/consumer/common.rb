@@ -10,15 +10,16 @@ module Emque
 
     class Consumer
       module Common
-        def self.included(base)
-          base.send(:attr_reader, :message)
+        def self.included(descendant)
+          descendant.class_eval do
+            attr_reader :message
+            private :consume, :handle_error, :pipe
+          end
         end
 
         def consume(handler_method, message)
           send(handler_method, message)
         end
-
-        private
 
         def pipe(message, through: [])
           through.reduce(message) { |msg, method|

@@ -21,7 +21,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "celluloid", "0.15.2"
   spec.add_dependency "activesupport", "~> 4.1"
-  spec.add_dependency "thor", "~> 0.19.1"
   spec.add_dependency "dante", "~> 0.2.0"
   spec.add_dependency "oj", "~> 2.10.2"
   spec.add_dependency "virtus", "~> 1.0.3"

@@ -1,54 +1,24 @@
 require "spec_helper"
-require "emque/consuming/application"
-
-class MockManager
-  def initialize(*args); end
-  def async; self; end
-  def start; end
-  def stop; end
-end
-
-module Emque
-  module Consuming
-    module Adapter
-      module Test
-        def self.load
-          # nothing to see here
-        end
-
-        def self.manager
-          MockManager
-        end
-      end
-    end
-  end
-end
-
-class MockApp < Emque::Consuming::Application
-  DOMAIN = "example.com"
-  PROTOCOL = "http"
-
-  config.consuming_adapter = :test
-
-  self.root = File.expand_path("../dummy/", __FILE__)
-end
 
 describe Emque::Consuming::Application do
   describe "#notice_error" do
     it "does not trigger a shutdown if the limit has not been reached" do
-      MockApp.config.error_limit = 2
-      app = MockApp.new
+      Dummy::Application.config.error_limit = 2
+      app = Dummy::Application.new
+      Emque::Consuming::Runner.instance = double(:router)
 
-      expect(app).to_not receive(:stop_via_launcher)
+      expect(Emque::Consuming::Runner.instance).to_not receive(:stop)
 
       app.notice_error({ :test => 'failure' })
     end
 
     it "triggers a shutdown one the error_limit is reached" do
-      MockApp.config.error_limit = 2
-      app = MockApp.new
+      Dummy::Application.config.error_limit = 2
+      app = Dummy::Application.new
+      Emque::Consuming::Runner.instance = double(:router)
 
-      expect(app).to receive(:stop_via_launcher).exactly(1).times
+      expect(Emque::Consuming::Runner.instance)
+        .to receive(:stop).exactly(1).times
 
       app.notice_error({ :test => 'failure' })
       app.notice_error({ :test => 'another failure' })
