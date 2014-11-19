@@ -12,8 +12,6 @@ module Emque
         @app_name = ""
         @consuming_adapter  = :rabbitmq
         @rabbitmq_options   = { :url => "amqp://guest:guest@localhost:5672" }
-        @kafka_options      = { :seed_brokers => ["localhost:9092"],
-                                :zookeepers => ["localhost:2181"] }
         @error_handlers     = []
         @error_limit        = 5
         @error_expiration   = 3600 # 60 minutes
