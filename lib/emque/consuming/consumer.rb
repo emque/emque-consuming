@@ -8,7 +8,7 @@ module Emque
     class BlockingFailure < StandardError; end
 
     class Consumer
-      include ::Emque::Consuming.consumer
+      include Emque::Consuming.consumer
 
       def process(message)
         pipe(message, :through => [:parse, :route])
@@ -24,7 +24,7 @@ module Emque
       end
 
       def route(message)
-        Emque::Consuming::Application.application.router.route(
+        Emque::Consuming.application.router.route(
           message.topic,
           message.values.fetch(:metadata).fetch(:type),
           message

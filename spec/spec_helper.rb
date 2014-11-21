@@ -1,9 +1,7 @@
 $TESTING = true
 
 require "pry"
-require "emque-consuming"
-
-ENV["EMQUE_ENV"] = "test"
+require_relative "dummy/config/application"
 
 module VerifyAndResetHelpers
   def verify(object)

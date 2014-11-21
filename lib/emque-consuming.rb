@@ -1,4 +1,3 @@
-require "emque/consuming"
-require "emque/cli"
-
 module Emque; end
+
+require "emque/consuming"

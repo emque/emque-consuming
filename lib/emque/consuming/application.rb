@@ -1,13 +1,8 @@
-require "emque/consuming/configuration"
-require "emque/consuming/logging"
-require "emque/consuming/consumer"
+require "emque/consuming/core"
 require "emque/consuming/actor"
-require "emque/consuming/launcher"
-require "emque/consuming/router"
-require "emque/consuming/message"
+require "emque/consuming/consumer"
 require "emque/consuming/error_tracker"
-require "emque/consuming/adapter"
-require "emque/consuming/status"
+require "emque/consuming/message"
 
 def emque_autoload(klass, file)
   Kernel.autoload(klass, file)
@@ -17,112 +12,30 @@ module Emque
   module Consuming
     class ConfigurationError < StandardError; end
 
-    class Application
+    module Application
+      def self.included(descendant)
+        Emque::Consuming.application = descendant
 
-      class << self
-        attr_accessor :root, :topic_mapping, :application, :router, :instance,
-                      :status
-      end
+        descendant.class_eval do
+          extend Emque::Consuming::Core
+          include Emque::Consuming::Helpers
 
-      def self.inherited(subclass)
-        Emque::Consuming::Application.application = subclass
-        call_stack = caller_locations.map(&:path)
-        subclass.root ||= File.expand_path(
-          "../..",
-          call_stack.find { |call| call !~ %r{lib/emque} }
-        )
+          attr_reader :error_tracker, :manager
 
-        app_name = subclass.to_s.underscore.gsub("/application","")
-        Emque::Consuming::Application.application.config.app_name = app_name
-
-        subclass.topic_mapping = {}
-        subclass.load_service!
-      end
-
-      def self.load_service!
-        service_files = Dir[File.join(root, "service", "**", "*.rb")]
-
-        service_files.each do |service_file|
-          klass = File.basename(service_file, ".rb").classify
-          emque_autoload(klass.to_sym, service_file)
+          private :ensure_adapter_is_configured!, :initialize_error_tracker,
+                  :initialize_manager, :log_prefix
         end
       end
-
-      def self.configure(&block)
-        instance_exec(&block)
-      end
-
-      def self.config
-        @config ||= Emque::Consuming::Configuration.new
-      end
-
-      def self.logfile
-        @logfile ||= File.join(self.root, "log/#{emque_env}.log").tap do |path|
-          directory = File.dirname(path)
-          Dir.mkdir(directory) unless File.exist?(directory)
-        end
-      end
-
-      def self.logger
-        Emque::Consuming.logger
-      end
-
-      def self.emque_env
-        ENV["EMQUE_ENV"] || "development"
-      end
-
-      attr_reader :error_tracker, :manager
-      attr_accessor :pidfile
 
       def initialize
-        require_relative File.join(self.class.root, "config", "environments", "#{self.class.emque_env}.rb")
+        self.class.instance = self
 
-        initialize_logger
-        logger.info "Application: initializing"
+        logger.info "#{log_prefix}: initializing"
 
-        require "celluloid"
-        Celluloid.logger = Emque::Consuming.logger
+        ensure_adapter_is_configured!
 
-        Emque::Consuming::Adapter.load(consuming_adapter)
-
-        self.class.router ||= Emque::Consuming::Router.new
-        require_relative File.join(self.class.root, "config", "routes.rb")
-
-        self.manager = Emque::Consuming::Adapter.manager(consuming_adapter).new(
-          Emque::Consuming::Application.application.router
-        )
-
-        self.error_tracker = Emque::Consuming::ErrorTracker.new(
-          :expiration => config.error_expiration,
-          :limit => config.error_limit
-        )
-
-        self.class.status = Emque::Consuming::Status.new(self)
-      end
-
-      def initialize_logger
-        Emque::Consuming::Logging.initialize_logger(self.class.logfile)
-        Emque::Consuming.logger.level = self.class.config.log_level
-      end
-
-      def start(test_loop: 1)
-        logger.info "Application: starting"
-        manager.async.start
-        self.class.status.start if config.status == :on
-      end
-
-      def shutdown
-        logger.info "Application: shutting down"
-        self.class.status.stop
-        manager.stop
-      end
-
-      def logger
-        self.class.logger
-      end
-
-      def consuming_adapter
-        config.consuming_adapter
+        initialize_manager
+        initialize_error_tracker
       end
 
       def notice_error(context)
@@ -130,23 +43,49 @@ module Emque
         verify_error_status
       end
 
+      def restart
+        stop
+        initialize_manager
+        error_tracker.occurrences.clear
+        start
+      end
+
+      def start
+        logger.info "#{log_prefix}: starting"
+        manager.async.start
+      end
+
+      def stop
+        logger.info "#{log_prefix}: stopping"
+        manager.stop
+      end
+
       def verify_error_status
-        stop_via_launcher if error_tracker.limit_reached?
+        runner.stop if error_tracker.limit_reached?
       end
 
-      private
+      # private
 
-      attr_writer :error_tracker, :manager
-
-      def config
-        Emque::Consuming::Application.application.config
+      def ensure_adapter_is_configured!
+        if config.adapter.nil?
+          raise AdapterConfigurationError,
+                "Adapter not found! use config.set_adapter(name, options)"
+        end
       end
 
-      def stop_via_launcher
-        Launcher.new({
-          :pidfile => pidfile,
-          :timeout => 5
-        }).stop
+      def initialize_error_tracker
+        @error_tracker = Emque::Consuming::ErrorTracker.new(
+          :expiration => config.error_expiration,
+          :limit => config.error_limit
+        )
+      end
+
+      def initialize_manager
+        @manager = config.adapter.manager.new
+      end
+
+      def log_prefix
+        "#{config.app_name.capitalize} Application"
       end
     end
   end

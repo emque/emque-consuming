@@ -1,16 +1,14 @@
-require "emque/consuming/application"
+require "emque/consuming/runner"
 require "emque/consuming/logging"
 
 module Emque
   module Consuming
     class << self
-      def application
-        Emque::Consuming::Application.application
-      end
+      attr_accessor :application
 
       # The Configuration instance used to configure the Emque::Consuming environment
       def config
-        application.config
+        Emque::Consuming.application.config
       end
 
       def logger
@@ -21,8 +19,8 @@ module Emque
         Emque::Consuming::Logging.logger = log
       end
 
-      def status
-        application.status
+      def runner
+        Emque::Consuming::Runner.instance
       end
     end
   end
