@@ -12,9 +12,9 @@ module Emque
         descendant.class_eval do
           class << self
             attr_accessor :root, :topic_mapping, :router, :instance
-          end
 
-          alias :configure :instance_exec
+            alias :configure :instance_exec
+          end
         end
       end
 
