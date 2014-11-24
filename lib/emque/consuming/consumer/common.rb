@@ -13,7 +13,7 @@ module Emque
         def self.included(descendant)
           descendant.class_eval do
             attr_reader :message
-            private :consume, :handle_error, :pipe
+            private :handle_error, :pipe
           end
         end
 

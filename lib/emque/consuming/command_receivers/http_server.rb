@@ -52,7 +52,7 @@ module Emque
             when "control"
               case req[2]
               when "errors"
-                if req[3..-1] && app.runner.control.errors(*req[3..-1]) == true
+                if req[3..-1] && runner.control.errors(*req[3..-1]) == true
                   return render_status
                 end
               else
