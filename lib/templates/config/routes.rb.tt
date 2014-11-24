@@ -1,0 +1,8 @@
+<%= @name %>::Application.router.map do
+  # topic "samples" => SamplesConsumer[, :workers => 2] do
+    # map "samples.new" => "new_sample"
+    # ...
+  # end
+
+  # ...
+end

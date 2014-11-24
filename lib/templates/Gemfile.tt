@@ -1,4 +1,6 @@
-source 'https://rubygems.org'
+source "https://rubygems.org"
+
+ruby "2.1.2"
 
 gem "rake"
-gem "emque"
+gem "emque-consuming", :git => "https://github.com/teamsnap/emque-consuming.git"
