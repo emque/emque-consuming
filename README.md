@@ -34,6 +34,34 @@ Or install it yourself as:
 
 ## Setup
 
+### Easy
+
+Using the `new` generator is the easiest way to get up and running quickly.
+
+```
+emque <options> new name
+```
+
+This command will create a directory "name" with barebones directories and files
+you'll need to get started. You can also use the following command line options
+to customize your service's configuration. Options will be added to the
+application.rb file generated.
+
+```
+emque <options> (start|stop|new|console|help) <name (new only)>
+    # ...
+    -S, --socket PATH                PATH to the service's unix socket
+    -b, --bind IP:PORT               IP & port for the http status service to listen on.
+    # ...
+    -e, --error-limit N              Set the max errors before service suicide
+    -s, --status                     Run the http status service
+    -x, --error-expiration SECONDS   Expire errors after SECONDS
+        --app-name NAME              Run the application as NAME
+    # ...
+```
+
+### Custom
+
 Configure Emque::Consuming in your application.rb file. Here is an example:
 
 ```ruby
@@ -103,7 +131,7 @@ Emque::Consuming provides a command line interface:
 ```
 $ bundle exec emque help
 
-emque <options> (start|stop|console|help)
+emque <options> (start|stop|new|console|help) <name (new only)>
     -P, --pidfile PATH               Store pid in PATH
     -S, --socket PATH                PATH to the service's unix socket
     -b, --bind IP:PORT               IP & port for the http status service to listen on.
@@ -133,7 +161,7 @@ rake emque:status               # Show the current status of a running instance 
 rake emque:stop                 # Stop a running instance (accepts SOCKET)
 ```
 
-To use the rake commands, add the following lines to your application's Rakefile:
+To use the rake commands, add the following line to your application's Rakefile:
 
 ```ruby
 require "emque/consuming/tasks"
