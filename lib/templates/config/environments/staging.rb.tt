@@ -1,0 +1,2 @@
+<%= @name %>::Application.configure do
+end

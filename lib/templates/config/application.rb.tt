@@ -1,9 +1,42 @@
 ENV["BUNDLE_GEMFILE"] ||= File.expand_path("../../Gemfile", __FILE__)
 require "bundler/setup" if File.exists?(ENV["BUNDLE_GEMFILE"])
 
-require "emque/application"
+require "emque/consuming"
 
-module <%= config[:name] %>
-  class Application < Emque::Application
+$LOAD_PATH.unshift("#{File.dirname(__FILE__)}/../lib")
+
+module <%= @name %>
+  class Application
+    include Emque::Consuming::Application
+
+    initialize_core!
+
+    <%=
+[].tap { |options_out|
+  if @options.has_key?(:app_name)
+    options_out << "config.app_name = \"#{@options[:app_name]}\""
+  end 
+  if @options.has_key?(:error_limit)
+    options_out << "config.error_limit = #{@options[:error_limit]}"
+  end
+  if @options.has_key?(:error_expiration)
+    options_out << "config.error_expiration = #{@options[:error_expiration]}"
+  end
+  options_out << "config.set_adapter(:rabbit_mq)"
+  if @options.has_key?(:status)
+    options_out << "config.status = :on"
+  end
+  if @options.has_key?(:status_host)
+    options_out << "config.status_host = \"#{@options[:status_host]}\""
+  end
+  if @options.has_key?(:status_port)
+    options_out << "config.status_port = #{@options[:status_port]}"
+  end
+  if @options.has_key?(:socket_path)
+    options_out << "config.socket_path = \"#{@options[:socket_path]}\""
+  end
+}.join("\n    ")
+    %>
   end
 end
+
