@@ -161,9 +161,10 @@ rake emque:status               # Show the current status of a running instance 
 rake emque:stop                 # Stop a running instance (accepts SOCKET)
 ```
 
-To use the rake commands, add the following line to your application's Rakefile:
+To use the rake commands, add the following lines to your application's Rakefile:
 
 ```ruby
+require_relative "config/application"
 require "emque/consuming/tasks"
 ```
 

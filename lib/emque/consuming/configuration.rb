@@ -4,7 +4,8 @@ module Emque
   module Consuming
     class Configuration
       attr_accessor :app_name, :adapter, :env, :error_handlers, :error_limit,
-        :error_expiration, :status, :status_port, :status_host, :socket_path
+        :error_expiration, :status, :status_port, :status_host, :socket_path,
+        :shutdown_handlers
       attr_writer :log_level
 
       def initialize
@@ -17,6 +18,7 @@ module Emque
         @status_host        = "0.0.0.0"
         @status             = :off # :on
         @socket_path        = "tmp/emque.sock"
+        @shutdown_handlers  = []
       end
 
       def log_level
@@ -39,7 +41,8 @@ module Emque
             :status_port,
             :status_host,
             :status,
-            :socket_path
+            :socket_path,
+            :shutdown_handlers
           ].each { |attr|
             config[attr] = send(attr)
           }

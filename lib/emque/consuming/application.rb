@@ -23,7 +23,7 @@ module Emque
           attr_reader :error_tracker, :manager
 
           private :ensure_adapter_is_configured!, :initialize_error_tracker,
-                  :initialize_manager, :log_prefix
+                  :initialize_manager, :log_prefix, :handle_shutdown
         end
       end
 
@@ -61,7 +61,10 @@ module Emque
       end
 
       def verify_error_status
-        runner.stop if error_tracker.limit_reached?
+        if error_tracker.limit_reached?
+          handle_shutdown
+          runner.stop
+        end
       end
 
       # private
@@ -70,6 +73,23 @@ module Emque
         if config.adapter.nil?
           raise AdapterConfigurationError,
                 "Adapter not found! use config.set_adapter(name, options)"
+        end
+      end
+
+      def handle_shutdown
+        context = {
+          :limit => error_tracker.limit,
+          :expiration => error_tracker.expiration,
+          :occurances => error_tracker.occurrences,
+          :status => runner.status.to_h,
+          :configuration => config.to_h
+        }
+
+        Emque::Consuming.logger.error("Error limit exceeded... shutting down")
+        Emque::Consuming.logger.error(context)
+
+        Emque::Consuming.config.shutdown_handlers.each do |handler|
+          handler.call(context)
         end
       end
 
