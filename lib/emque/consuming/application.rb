@@ -80,7 +80,7 @@ module Emque
         context = {
           :limit => error_tracker.limit,
           :expiration => error_tracker.expiration,
-          :occurances => error_tracker.occurrences,
+          :occurrences => error_tracker.occurrences,
           :status => runner.status.to_h,
           :configuration => config.to_h
         }
