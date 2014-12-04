@@ -13,6 +13,7 @@ module Emque
         end
 
         class Manager
+          def async; self; end
           def start; end
           def stop; end
           def worker(topic:, command:); end
