@@ -69,8 +69,7 @@ module Emque
 
       def setup_options
         @options = {
-          :daemon => false,
-          :force => false
+          :daemon => false
         }
 
         @parser = OptionParser.new { |o|

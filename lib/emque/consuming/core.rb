@@ -81,7 +81,7 @@ module Emque
       end
 
       def emque_env
-        config.env || ENV["EMQUE_ENV"] || ENV["RACK_ENV"] || "development"
+        config.env_var || ENV["EMQUE_ENV"] || ENV["RACK_ENV"] || "development"
       end
     end
   end

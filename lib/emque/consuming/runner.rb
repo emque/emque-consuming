@@ -113,7 +113,7 @@ module Emque
         Process.daemon(true, true)
 
         [$stdout, $stderr].each do |io|
-          File.open(Emque::Consuming.application.logfile, 'ab') do |f|
+          File.open(Emque::Consuming.application.logfile, "ab") do |f|
             io.reopen(f)
           end
           io.sync = true

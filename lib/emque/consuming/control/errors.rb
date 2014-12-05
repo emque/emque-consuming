@@ -18,6 +18,9 @@ module Emque
         end
 
         def expire_after(seconds)
+          unless seconds.is_a?(Integer)
+            raise ArgumentError, "first argument must be an integer"
+          end
           config.error_expiration = app.error_tracker.expiration = seconds
         end
 
