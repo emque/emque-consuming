@@ -21,5 +21,6 @@ RSpec.configure do |config|
 
   config.after(:each) do
     FileUtils.remove_dir("dummy/tmp", true)
+    Timecop.return
   end
 end

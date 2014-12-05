@@ -3,6 +3,20 @@ require "timecop"
 require "emque/consuming/error_tracker"
 
 describe Emque::Consuming::ErrorTracker do
+  describe "#count" do
+    it "returns the number of errors not yet expired" do
+      Timecop.freeze(Time.now)
+      tracker = Emque::Consuming::ErrorTracker.new
+      tracker.occurrences = {
+        :one => Time.now + 10.minutes,
+        :two => Time.now,
+        :three => Time.now - 1.minute
+      }
+
+      expect(tracker.count).to eq(2)
+    end
+  end
+
   describe "#limit_reached?" do
     it "is false initially" do
       tracker = Emque::Consuming::ErrorTracker.new
