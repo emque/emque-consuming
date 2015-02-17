@@ -1,4 +1,3 @@
-require "active_support/core_ext/string"
 require "optparse"
 require "emque/consuming"
 require "emque/consuming/generators/application"

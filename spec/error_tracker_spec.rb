@@ -7,9 +7,9 @@ describe Emque::Consuming::ErrorTracker do
       Timecop.freeze do
         tracker = Emque::Consuming::ErrorTracker.new
         tracker.occurrences = {
-          :one => Time.now + 10.minutes,
+          :one => Time.now + (10 * 60),
           :two => Time.now,
-          :three => Time.now - 1.minute
+          :three => Time.now - 60
         }
 
         expect(tracker.count).to eq(2)

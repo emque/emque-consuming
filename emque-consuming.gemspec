@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "oj",        "~> 2.11.4"
   spec.add_dependency "virtus",    "~> 1.0.4"
   spec.add_dependency "puma",      "~> 2.11.1"
-  spec.add_dependency "activesupport", "~> 4.2.0"
+  spec.add_dependency "inflecto",  "~> 0.0.2"
 
   spec.add_development_dependency "bundler", "~> 1.7"
   spec.add_development_dependency "rake",    "~> 10.4.2"

@@ -1,4 +1,5 @@
 require "celluloid"
+require "inflecto"
 require "emque/consuming/configuration"
 require "emque/consuming/adapter"
 require "emque/consuming/logging"
@@ -29,7 +30,7 @@ module Emque
 
         self.topic_mapping = {}
 
-        config.app_name = to_s.underscore.gsub("/application","")
+        config.app_name = Inflecto.underscore(to_s).gsub("/application","")
 
         load_app!
         initialize_environment!
@@ -64,7 +65,7 @@ module Emque
         app_files = Dir[File.join(root, "app", "**", "*.rb")]
 
         app_files.each do |app_file|
-          klass = File.basename(app_file, ".rb").classify
+          klass = Inflecto.classify(File.basename(app_file, ".rb"))
           emque_autoload(klass.to_sym, app_file)
         end
       end

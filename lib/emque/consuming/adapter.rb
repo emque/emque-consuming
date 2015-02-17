@@ -1,3 +1,5 @@
+require "inflecto"
+
 module Emque
   module Consuming
     class AdapterConfigurationError < StandardError; end
@@ -23,14 +25,15 @@ module Emque
       attr_accessor :namespace
 
       def fetch_and_load
-        klass = name.to_s.camelize
+        klass = Inflecto.camelize(name.to_s)
 
         unless Emque::Consuming::Adapters.const_defined?(klass)
           require "emque/consuming/adapters/#{name}"
         end
 
-        self.namespace =
-          "Emque::Consuming::Adapters::#{klass}".constantize
+        self.namespace = Inflecto.constantize(
+          "Emque::Consuming::Adapters::#{klass}"
+        )
 
         namespace.load
       rescue LoadError
