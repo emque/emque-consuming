@@ -62,7 +62,7 @@ emque <options> (start|stop|new|console|help) <name (new only)>
 
 ### Custom
 
-Configure Emque::Consuming in your application.rb file. Here is an example:
+Configure Emque::Consuming in your config/application.rb file. Here is an example:
 
 ```ruby
 # config/application.rb
@@ -97,7 +97,7 @@ end
 and a consumer for each topic:
 
 ```ruby
-# application/consumers/events_consumer.rb
+# app/consumers/events_consumer.rb
 
 class EventsConsumer
   include Emque::Consuming.consumer
