@@ -1,5 +1,4 @@
 require "spec_helper"
-require "timecop"
 require "emque/consuming/error_tracker"
 
 describe Emque::Consuming::ErrorTracker do
