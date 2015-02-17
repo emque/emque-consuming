@@ -5,15 +5,16 @@ require "emque/consuming/error_tracker"
 describe Emque::Consuming::ErrorTracker do
   describe "#count" do
     it "returns the number of errors not yet expired" do
-      Timecop.freeze(Time.now)
-      tracker = Emque::Consuming::ErrorTracker.new
-      tracker.occurrences = {
-        :one => Time.now + 10.minutes,
-        :two => Time.now,
-        :three => Time.now - 1.minute
-      }
+      Timecop.freeze do
+        tracker = Emque::Consuming::ErrorTracker.new
+        tracker.occurrences = {
+          :one => Time.now + 10.minutes,
+          :two => Time.now,
+          :three => Time.now - 1.minute
+        }
 
-      expect(tracker.count).to eq(2)
+        expect(tracker.count).to eq(2)
+      end
     end
   end
 
@@ -41,22 +42,24 @@ describe Emque::Consuming::ErrorTracker do
     end
 
     it "takes expiration time into account" do
-      current_time = Time.now
-      Timecop.freeze(current_time)
+      Timecop.freeze do
+        current_time = Time.now
 
-      tracker = Emque::Consuming::ErrorTracker.new(
-        :limit => 2, :expiration => 60
-      )
+        tracker = Emque::Consuming::ErrorTracker.new(
+          :limit => 2, :expiration => 60
+        )
 
-      tracker.notice_error_for({ :first => "value" })
+        tracker.notice_error_for({ :first => "value" })
 
-      Timecop.travel(current_time + 61)
+        Timecop.travel(current_time + 61) do
 
-      tracker.notice_error_for({ :second => "value" })
-      expect(tracker.limit_reached?).to eq(false)
+          tracker.notice_error_for({ :second => "value" })
+          expect(tracker.limit_reached?).to eq(false)
 
-      tracker.notice_error_for({ :first => "value "})
-      expect(tracker.limit_reached?).to eq(true)
+          tracker.notice_error_for({ :first => "value "})
+          expect(tracker.limit_reached?).to eq(true)
+        end
+      end
     end
   end
 end

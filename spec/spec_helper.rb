@@ -10,6 +10,7 @@ SimpleCov.start do
   add_filter "vendor"
 end
 
+require "timecop"
 require "fileutils"
 require_relative "dummy/config/application"
 
@@ -23,6 +24,8 @@ module VerifyAndResetHelpers
   end
 end
 
+Timecop.safe_mode = true
+
 RSpec.configure do |config|
   config.order = "random"
 
@@ -30,6 +33,5 @@ RSpec.configure do |config|
 
   config.after(:each) do
     FileUtils.remove_dir("dummy/tmp", true)
-    Timecop.return
   end
 end
