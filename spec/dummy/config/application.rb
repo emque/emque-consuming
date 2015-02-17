@@ -1,6 +1,6 @@
 require "emque/consuming"
 
-ENV['EMQUE_ENV'] = "test"
+ENV["EMQUE_ENV"] = "test"
 
 module Emque
   module Consuming

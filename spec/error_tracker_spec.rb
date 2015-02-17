@@ -27,16 +27,16 @@ describe Emque::Consuming::ErrorTracker do
     it "is true once n(limit) unique values are noticed" do
       tracker = Emque::Consuming::ErrorTracker.new(:limit => 2)
 
-      tracker.notice_error_for({ :first => 'value' })
+      tracker.notice_error_for({ :first => "value" })
       expect(tracker.limit_reached?).to eq(false)
 
-      tracker.notice_error_for({ :first => 'value' })
+      tracker.notice_error_for({ :first => "value" })
       expect(tracker.limit_reached?).to eq(false)
 
-      tracker.notice_error_for({ :second => 'value' })
+      tracker.notice_error_for({ :second => "value" })
       expect(tracker.limit_reached?).to eq(true)
 
-      tracker.notice_error_for({ :third => 'value' })
+      tracker.notice_error_for({ :third => "value" })
       expect(tracker.limit_reached?).to eq(true)
     end
 
@@ -48,14 +48,14 @@ describe Emque::Consuming::ErrorTracker do
         :limit => 2, :expiration => 60
       )
 
-      tracker.notice_error_for({ :first => 'value' })
+      tracker.notice_error_for({ :first => "value" })
 
       Timecop.travel(current_time + 61)
 
-      tracker.notice_error_for({ :second => 'value' })
+      tracker.notice_error_for({ :second => "value" })
       expect(tracker.limit_reached?).to eq(false)
 
-      tracker.notice_error_for({ :first => 'value '})
+      tracker.notice_error_for({ :first => "value "})
       expect(tracker.limit_reached?).to eq(true)
     end
   end

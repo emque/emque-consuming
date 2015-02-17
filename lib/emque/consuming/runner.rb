@@ -119,7 +119,7 @@ module Emque
           io.sync = true
         end
 
-        $stdin.reopen('/dev/null')
+        $stdin.reopen("/dev/null")
       end
 
       def default_pidfile
