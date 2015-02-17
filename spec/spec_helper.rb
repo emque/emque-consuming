@@ -1,6 +1,15 @@
 $TESTING = true
+require "simplecov"
+require "coveralls"
 
-require "pry"
+SimpleCov::Formatter::MultiFormatter[
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter
+]
+SimpleCov.start do
+  add_filter "vendor"
+end
+
 require "fileutils"
 require_relative "dummy/config/application"
 
