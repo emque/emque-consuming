@@ -31,7 +31,7 @@ module Emque
 
         config.app_name = to_s.underscore.gsub("/application","")
 
-        load_service!
+        load_app!
         initialize_environment!
         initialize_router!
       end
@@ -60,12 +60,12 @@ module Emque
         require_relative File.join(root, "config", "routes.rb")
       end
 
-      def load_service!
-        service_files = Dir[File.join(root, "service", "**", "*.rb")]
+      def load_app!
+        app_files = Dir[File.join(root, "app", "**", "*.rb")]
 
-        service_files.each do |service_file|
-          klass = File.basename(service_file, ".rb").classify
-          emque_autoload(klass.to_sym, service_file)
+        app_files.each do |app_file|
+          klass = File.basename(app_file, ".rb").classify
+          emque_autoload(klass.to_sym, app_file)
         end
       end
 

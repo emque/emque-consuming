@@ -6,11 +6,11 @@ require "emque/consuming/version"
 Gem::Specification.new do |spec|
   spec.name          = "emque-consuming"
   spec.version       = Emque::Consuming::VERSION
-  spec.authors       = ["Emily Dobervich", "Ryan Williams", "Dan Matthews"]
-  spec.email         = ["dev@teamsnap.com"]
+  spec.authors       = ["Ryan Williams", "Dan Matthews"]
+  spec.email         = ["oss@teamsnap.com"]
   spec.summary       = %q{Microservices framework for Ruby}
-  spec.description   = %q{Consume and process messages from a variety of message brokers.}
-  spec.homepage      = ""
+  spec.summary       = %q{Microservices framework for Ruby}
+  spec.homepage      = "https://github.com/teamsnap/emque-consuming"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)

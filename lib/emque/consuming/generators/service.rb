@@ -6,7 +6,7 @@ require "optparse"
 module Emque
   module Consuming
     module Generators
-      class Service
+      class Application
         IGNORE = [".", ".."]
 
         def initialize(options, name)

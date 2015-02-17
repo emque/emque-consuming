@@ -50,7 +50,7 @@ module Emque
         stop && start
       end
 
-      def restart_service
+      def restart_application
         receivers.first.restart
       end
 
