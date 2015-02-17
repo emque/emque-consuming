@@ -13,6 +13,7 @@ kafka_*/
 /logs/*
 log-cleaner.log
 Gemfile.lock
+*.log
 
 ## Specific to RubyMotion:
 .dat*
