@@ -11,4 +11,4 @@ RSpec::Core::RakeTask.new(:spec) do |t|
 end
 task :default => :spec
 
-Coverall::RakeTask.new
+Coveralls::RakeTask.new
