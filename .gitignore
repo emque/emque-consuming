@@ -11,6 +11,7 @@
 kafka_*/
 /log/*
 /logs/*
+log-cleaner.log
 
 ## Specific to RubyMotion:
 .dat*
