@@ -23,7 +23,7 @@ module Emque
 
         def pipe(message, through: [])
           through.reduce(message) { |msg, method|
-            break unless msg.continue?
+            break unless (msg.respond_to?(:continue?) && msg.continue?)
 
             begin
               send(method, msg)
