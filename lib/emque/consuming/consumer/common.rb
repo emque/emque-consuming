@@ -1,8 +1,11 @@
+require "pipe"
+
 module Emque
   module Consuming
     def self.consumer
       Module.new do
         define_singleton_method(:included) do |descendant|
+          descendant.send(:include, ::Pipe)
           descendant.send(:include, ::Emque::Consuming::Consumer::Common)
         end
       end
@@ -21,29 +24,24 @@ module Emque
           send(handler_method, message)
         end
 
-        def pipe(message, through: [])
-          through.reduce(message) { |msg, method|
-            break unless msg.continue?
-
-            begin
-              send(method, msg)
-            rescue => e
-              handle_error(e, { method: method, message: msg })
-            end
-          }
+        def pipe_config
+          @pipe_config ||= Pipe::Config.new(
+            :error_handlers => [method(:handle_error)],
+            :stop_on => ->(msg, _, _) { !msg.continue? }
+          )
         end
 
-        def handle_error(e, method:, message:)
+        def handle_error(e, method:, subject:)
           context = {
             :consumer => self.class.name,
             :message => {
-              :current => message.values,
-              :original => message.original
+              :current => subject.values,
+              :original => subject.original
             },
-            :offset => message.offset,
-            :partition => message.partition,
+            :offset => subject.offset,
+            :partition => subject.partition,
             :pipe_method => method,
-            :topic => message.topic
+            :topic => subject.topic
           }
 
           # log the error by default

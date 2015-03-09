@@ -79,20 +79,20 @@ describe Emque::Consuming::Cli do
     end
   end
 
-  describe "creating a new service" do
-    it "passes the new command to a new service generator instance" do
+  describe "creating a new application" do
+    it "passes the new command to a new application generator instance" do
       generator = double(:generator, :generate => true)
 
-      expect(Emque::Consuming::Generators::Service).to receive(:new)
+      expect(Emque::Consuming::Generators::Application).to receive(:new)
         .and_return(generator)
       expect(generator).to receive(:generate)
 
-      Emque::Consuming::Cli.new(["new", "testservice"])
+      Emque::Consuming::Cli.new(["new", "testapplication"])
     end
 
-    it "passes valid arguments along to the new service generator" do
-      service_name = "testservice"
-      command = ["new", service_name]
+    it "passes valid arguments along to the new application generator" do
+      application_name = "testapplication"
+      command = ["new", application_name]
       valid_args = [
         "-P", "tmp/pidfile.pid",
         "-d",
@@ -114,14 +114,14 @@ describe Emque::Consuming::Cli do
       argv = valid_args + command
       generator = double(:generator, :generate => true)
 
-      expect(Emque::Consuming::Generators::Service).to receive(:new)
-        .with(expected_options, service_name)
+      expect(Emque::Consuming::Generators::Application).to receive(:new)
+        .with(expected_options, application_name)
         .and_return(generator)
 
       Emque::Consuming::Cli.new(argv)
     end
 
-    it "exits if no service name is passed" do
+    it "exits if no application name is passed" do
       expect { Emque::Consuming::Cli.new(["new"]) }.to raise_error(SystemExit)
     end
   end

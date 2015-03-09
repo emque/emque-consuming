@@ -1,6 +1,16 @@
 $TESTING = true
+require "simplecov"
+require "coveralls"
 
-require "pry"
+SimpleCov::Formatter::MultiFormatter[
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter
+]
+SimpleCov.start do
+  add_filter "vendor"
+end
+
+require "timecop"
 require "fileutils"
 require_relative "dummy/config/application"
 
@@ -14,13 +24,20 @@ module VerifyAndResetHelpers
   end
 end
 
+Timecop.safe_mode = true
+
 RSpec.configure do |config|
   config.order = "random"
-
   config.include VerifyAndResetHelpers
 
   config.after(:each) do
     FileUtils.remove_dir("dummy/tmp", true)
-    Timecop.return
+  end
+
+  config.around do |example|
+    original_stdout = $stdout
+    $stdout = StringIO.new
+    example.run
+    $stdout = original_stdout
   end
 end

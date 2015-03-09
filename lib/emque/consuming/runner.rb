@@ -50,7 +50,7 @@ module Emque
         stop && start
       end
 
-      def restart_service
+      def restart_application
         receivers.first.restart
       end
 
@@ -119,7 +119,7 @@ module Emque
           io.sync = true
         end
 
-        $stdin.reopen('/dev/null')
+        $stdin.reopen("/dev/null")
       end
 
       def default_pidfile

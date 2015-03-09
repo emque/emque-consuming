@@ -1,4 +1,3 @@
-require "active_support/core_ext/string"
 require "erb"
 require "fileutils"
 require "optparse"
@@ -6,11 +5,11 @@ require "optparse"
 module Emque
   module Consuming
     module Generators
-      class Service
+      class Application
         IGNORE = [".", ".."]
 
         def initialize(options, name)
-          self.name = name.underscore
+          self.name = Inflecto.underscore(name)
           self.options = options
         end
 

@@ -1,7 +1,6 @@
-require "active_support/core_ext/string"
 require "optparse"
 require "emque/consuming"
-require "emque/consuming/generators/service"
+require "emque/consuming/generators/application"
 
 module Emque
   module Consuming
@@ -32,7 +31,7 @@ module Emque
 
       def execute
         if command == :new
-          Emque::Consuming::Generators::Service.new(options, argv.last).generate
+          Emque::Consuming::Generators::Application.new(options, argv.last).generate
         else
           self.runner = Emque::Consuming::Runner.new(options)
           runner.send(command)
@@ -80,7 +79,7 @@ module Emque
           o.on(
             "-S",
             "--socket PATH",
-            "PATH to the service's unix socket"
+            "PATH to the application's unix socket"
           ) do |arg|
             options[:socket_path] = arg
           end
@@ -88,7 +87,7 @@ module Emque
           o.on(
             "-b",
             "--bind IP:PORT",
-            "IP & port for the http status service to listen on."
+            "IP & port for the http status application to listen on."
           ) do |arg|
             ip, port = arg.split(":")
             port = port.to_i
@@ -96,20 +95,20 @@ module Emque
             options[:status_port] = port if port > 0 && port <= 65535
           end
 
-          o.on("-d", "--daemon", "Daemonize the service") do
+          o.on("-d", "--daemon", "Daemonize the application") do
             options[:daemon] = true
           end
 
           o.on(
             "-e",
             "--error-limit N",
-            "Set the max errors before service suicide"
+            "Set the max errors before application suicide"
           ) do |arg|
             limit = arg.to_i
             options[:error_limit] = limit if limit > 0
           end
 
-          o.on("-s", "--status", "Run the http status service") do
+          o.on("-s", "--status", "Run the http status application") do
             options[:status] = :on
           end
 

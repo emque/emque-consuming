@@ -85,9 +85,9 @@ We suggest using Emque::Consuming::Transmitter to send a requests.",
 
 # Information
 
-configuration                 # current configuration of the service
+configuration                 # current configuration of the application
 help                          # this menu
-status                        # current status of the service
+status                        # current status of the application
 
 # Control
 
@@ -96,7 +96,7 @@ errors down                   # decrease the acceptable error threshold by 1
 errors expire_after <seconds> # changes the expiration time for future errors
 errors up                     # increase the acceptable error threshold by 1
 restart                       # restart all workers
-stop                          # turn the service off
+stop                          # turn the application off
 -------
             OUT
           end
@@ -133,8 +133,8 @@ stop                          # turn the service off
           end
 
           def restart
-            runner.restart_service
-            "The service was successfully restarted"
+            runner.restart_application
+            "The application was successfully restarted"
           end
 
           def status

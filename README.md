@@ -4,8 +4,8 @@ teamsnap/emque-consuming](https://www.codeship.io/projects/83d08620-2023-0132-2b
 # Emque::Consuming
 
 Emque Consuming is a Ruby application framework that includes everything needed
-to create and run services capable of consuming messages from a message broker
-in a Pub/sub architecture.  Messages can be produced with the
+to create and run application capable of consuming messages from a message
+broker in a Pub/sub architecture. Messages can be produced with the
 [emque-producing](https://github.com/teamsnap/emque-producing) library.
 
 ## Adapters
@@ -44,17 +44,17 @@ emque <options> new name
 
 This command will create a directory "name" with barebones directories and files
 you'll need to get started. You can also use the following command line options
-to customize your service's configuration. Options will be added to the
-application.rb file generated.
+to customize your application's configuration. Options will be added to the
+config/application.rb file generated.
 
 ```
 emque <options> (start|stop|new|console|help) <name (new only)>
     # ...
-    -S, --socket PATH                PATH to the service's unix socket
-    -b, --bind IP:PORT               IP & port for the http status service to listen on.
+    -S, --socket PATH                PATH to the application's unix socket
+    -b, --bind IP:PORT               IP & port for the http status application to listen on.
     # ...
-    -e, --error-limit N              Set the max errors before service suicide
-    -s, --status                     Run the http status service
+    -e, --error-limit N              Set the max errors before application suicide
+    -s, --status                     Run the http status application
     -x, --error-expiration SECONDS   Expire errors after SECONDS
         --app-name NAME              Run the application as NAME
     # ...
@@ -62,7 +62,7 @@ emque <options> (start|stop|new|console|help) <name (new only)>
 
 ### Custom
 
-Configure Emque::Consuming in your application.rb file. Here is an example:
+Configure Emque::Consuming in your config/application.rb file. Here is an example:
 
 ```ruby
 # config/application.rb
@@ -97,7 +97,7 @@ end
 and a consumer for each topic:
 
 ```ruby
-# service/consumers/events_consumer.rb
+# app/consumers/events_consumer.rb
 
 class EventsConsumer
   include Emque::Consuming.consumer
@@ -133,11 +133,11 @@ $ bundle exec emque help
 
 emque <options> (start|stop|new|console|help) <name (new only)>
     -P, --pidfile PATH               Store pid in PATH
-    -S, --socket PATH                PATH to the service's unix socket
-    -b, --bind IP:PORT               IP & port for the http status service to listen on.
-    -d, --daemon                     Daemonize the service
-    -e, --error-limit N              Set the max errors before service suicide
-    -s, --status                     Run the http status service
+    -S, --socket PATH                PATH to the application's unix socket
+    -b, --bind IP:PORT               IP & port for the http status application to listen on.
+    -d, --daemon                     Daemonize the application
+    -e, --error-limit N              Set the max errors before application suicide
+    -s, --status                     Run the http status application
     -x, --error-expiration SECONDS   Expire errors after SECONDS
         --app-name NAME              Run the application as NAME
         --env (ex. production)       Set the application environment, overrides EMQUE_ENV
