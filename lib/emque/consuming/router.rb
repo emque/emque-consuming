@@ -56,7 +56,9 @@ module Emque
         end
 
         def map(map)
-          mapping.merge!(map.symbolize_keys)
+          mapping.merge!(
+            map.map { |k, v| [k.to_sym, v] }.to_h
+          )
         end
 
         def route(type)
