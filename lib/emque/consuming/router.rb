@@ -56,11 +56,11 @@ module Emque
         end
 
         def map(map)
-          mapping.merge!(map.symbolize_keys)
+          mapping.merge!(map)
         end
 
         def route(type)
-          mapping[type.to_sym]
+          mapping[type]
         end
 
         private
