@@ -25,6 +25,7 @@ module Emque
             #        a new channel in each worker.
             # https://github.com/jhbabon/amqp-celluloid/blob/master/lib/consumer.rb
             self.channel = connection.create_channel
+            channel.prefetch(config.adapter.options[:prefetch]) if config.adapter.options[:prefetch]
 
             self.queue =
               channel
