@@ -3,7 +3,12 @@ module Emque
     module Adapters
       module RabbitMq
         def self.default_options
-          {:url => "amqp://guest:guest@localhost:5672", :prefetch => nil}
+          {
+            :url => "amqp://guest:guest@localhost:5672",
+            :prefetch => nil,
+            :durable => true,
+            :auto_delete => false
+          }
         end
 
         def self.load
