@@ -31,8 +31,8 @@ module Emque
               channel
                 .queue(
                   "#{config.app_name}.#{topic}",
-                  :durable => true,
-                  :auto_delete => false
+                  :durable => config.adapter.options[:durable],
+                  :auto_delete => config.adapter.options[:auto_delete]
                 )
                 .bind(
                   channel.fanout(topic, :durable => true, :auto_delete => false)
