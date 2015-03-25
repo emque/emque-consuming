@@ -20,7 +20,7 @@ Add this line to your application's Gemfile:
 ```ruby
 gem "emque-consuming", :git => "https://github.com/teamsnap/emque-consuming"
 # make sure you have bunny for rabbitmq unless you're using a custom adapter
-gem "bunny", "~> 1.4.1"
+gem "bunny", "~> 1.7"
 
 ```
 
