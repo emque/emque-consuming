@@ -16,7 +16,7 @@ module Emque
         def generate
           context = Class.new(Object) { |obj|
             def initialize(options, name)
-              @name = name.camelize
+              @name = Inflecto.camelize(name)
               @options = options
             end
 
