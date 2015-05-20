@@ -74,7 +74,24 @@ module Example
 
     initialize_core!
 
-    config.set_adapter(:rabbit_mq)
+    config.set_adapter(:rabbit_mq, :url => ENV["RABBITMQ_URL"], :prefetch => 10)
+
+    # customize the error thresholds
+    # config.error_limit = 10
+    # config.error_expiration = 300
+
+    # enable the status application
+    # config.status = :on
+
+    # errors will be logged, but if more is needed, that can be added
+    # config.error_handlers << Proc.new {|ex, context|
+    #  send an email, send to HoneyBadger, etc
+    # }
+
+    # do something when shutdown occurs
+    # config.shutdown_handlers << Proc.new { |context|
+    #   notify slack, pagerduty or send an email
+    # }
   end
 end
 ```
