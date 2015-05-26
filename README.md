@@ -1,5 +1,4 @@
-[ ![Codeship Status for
-teamsnap/emque-consuming](https://www.codeship.io/projects/83d08620-2023-0132-2bcd-1a9cd91404f6/status)](https://www.codeship.io/projects/35892)
+[![Build Status](https://travis-ci.org/emque/emque-consuming.png)](https://travis-ci.org/emque/emque-consuming)
 
 # Emque::Consuming
 
