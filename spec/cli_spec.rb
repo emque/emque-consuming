@@ -28,8 +28,6 @@ describe Emque::Consuming::Cli do
         "-P", "tmp/pidfile.pid",
         "-d",
         "-S", "tmp/socket.sock",
-        "-e", "20",
-        "-x", "1000",
         "--app-name", "testing",
         "--env", "test"
       ]
@@ -37,8 +35,6 @@ describe Emque::Consuming::Cli do
         :daemon => true,
         :pidfile => "tmp/pidfile.pid",
         :socket_path => "tmp/socket.sock",
-        :error_limit => 20,
-        :error_expiration => 1000,
         :app_name => "testing",
         :env => "test"
       }
@@ -97,8 +93,6 @@ describe Emque::Consuming::Cli do
         "-P", "tmp/pidfile.pid",
         "-d",
         "-S", "tmp/socket.sock",
-        "-e", "20",
-        "-x", "1000",
         "--app-name", "testing",
         "--env", "test"
       ]
@@ -106,8 +100,6 @@ describe Emque::Consuming::Cli do
         :daemon => true,
         :pidfile => "tmp/pidfile.pid",
         :socket_path => "tmp/socket.sock",
-        :error_limit => 20,
-        :error_expiration => 1000,
         :app_name => "testing",
         :env => "test"
       }

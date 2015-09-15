@@ -27,6 +27,7 @@ module Emque
         def pipe_config
           @pipe_config ||= Pipe::Config.new(
             :error_handlers => [method(:handle_error)],
+            :raise_on_error => true,
             :stop_on => ->(msg, _, _) { !(msg.respond_to?(:continue?) && msg.continue?) }
           )
         end
@@ -52,8 +53,6 @@ module Emque
           Emque::Consuming.config.error_handlers.each do |handler|
             handler.call(e, context)
           end
-
-          Emque::Consuming.application.instance.notice_error(context)
         end
       end
     end

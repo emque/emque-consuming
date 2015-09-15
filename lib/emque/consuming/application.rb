@@ -1,7 +1,6 @@
 require "emque/consuming/core"
 require "emque/consuming/actor"
 require "emque/consuming/consumer"
-require "emque/consuming/error_tracker"
 require "emque/consuming/message"
 
 def emque_autoload(klass, file)
@@ -20,10 +19,10 @@ module Emque
           extend Emque::Consuming::Core
           include Emque::Consuming::Helpers
 
-          attr_reader :error_tracker, :manager
+          attr_reader :manager
 
-          private :ensure_adapter_is_configured!, :initialize_error_tracker,
-                  :initialize_manager, :log_prefix, :handle_shutdown
+          private :ensure_adapter_is_configured!, :initialize_manager,
+            :log_prefix
         end
       end
 
@@ -35,18 +34,11 @@ module Emque
         ensure_adapter_is_configured!
 
         initialize_manager
-        initialize_error_tracker
-      end
-
-      def notice_error(context)
-        error_tracker.notice_error_for(context)
-        verify_error_status
       end
 
       def restart
         stop
         initialize_manager
-        error_tracker.occurrences.clear
         start
       end
 
@@ -60,13 +52,6 @@ module Emque
         manager.stop
       end
 
-      def verify_error_status
-        if error_tracker.limit_reached?
-          handle_shutdown
-          runner.stop
-        end
-      end
-
       # private
 
       def ensure_adapter_is_configured!
@@ -74,30 +59,6 @@ module Emque
           raise AdapterConfigurationError,
                 "Adapter not found! use config.set_adapter(name, options)"
         end
-      end
-
-      def handle_shutdown
-        context = {
-          :limit => error_tracker.limit,
-          :expiration => error_tracker.expiration,
-          :occurrences => error_tracker.occurrences,
-          :status => runner.status.to_h,
-          :configuration => config.to_h
-        }
-
-        Emque::Consuming.logger.error("Error limit exceeded... shutting down")
-        Emque::Consuming.logger.error(context)
-
-        Emque::Consuming.config.shutdown_handlers.each do |handler|
-          handler.call(context)
-        end
-      end
-
-      def initialize_error_tracker
-        @error_tracker = Emque::Consuming::ErrorTracker.new(
-          :expiration => config.error_expiration,
-          :limit => config.error_limit
-        )
       end
 
       def initialize_manager

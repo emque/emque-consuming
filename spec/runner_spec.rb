@@ -37,7 +37,6 @@ describe Emque::Consuming::Runner do
     it "passes valid options to the app configuration" do
       valid_opts = {
         :app_name => "testing",
-        :error_limit => 5,
         :status => :one
       }
       invalid_opts = {

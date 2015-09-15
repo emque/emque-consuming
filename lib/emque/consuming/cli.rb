@@ -99,26 +99,8 @@ module Emque
             options[:daemon] = true
           end
 
-          o.on(
-            "-e",
-            "--error-limit N",
-            "Set the max errors before application suicide"
-          ) do |arg|
-            limit = arg.to_i
-            options[:error_limit] = limit if limit > 0
-          end
-
           o.on("-s", "--status", "Run the http status application") do
             options[:status] = :on
-          end
-
-          o.on(
-            "-x",
-            "--error-expiration SECONDS",
-            "Expire errors after SECONDS"
-          ) do |arg|
-            exp = arg.to_i
-            options[:error_expiration] = exp if exp > 0
           end
 
           o.on("--app-name NAME", "Run the application as NAME") do |arg|
