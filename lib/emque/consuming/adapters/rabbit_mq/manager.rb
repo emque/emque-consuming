@@ -55,6 +55,10 @@ module Emque
             flatten ? @workers.values.flatten : @workers
           end
 
+          def retry_errors
+            RetryWorker.new(@connection).retry_errors
+          end
+
           private
 
           attr_writer :workers
@@ -81,6 +85,9 @@ module Emque
               "#{config.app_name}.error",
               :durable => true,
               :auto_delete => false,
+              :arguments => {
+                "x-dead-letter-exchange" => "#{config.app_name}.error"
+              }
             ).bind(error_exchange)
           end
 

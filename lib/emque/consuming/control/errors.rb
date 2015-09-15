@@ -4,7 +4,7 @@ module Emque
       class Errors
         include Emque::Consuming::Helpers
 
-        COMMANDS = [:clear, :down, :expire_after, :up]
+        COMMANDS = [:clear, :down, :expire_after, :up, :retry]
 
         def clear
           app.error_tracker.occurrences.clear
@@ -26,6 +26,10 @@ module Emque
 
         def up
           config.error_limit = app.error_tracker.limit += 1
+        end
+
+        def retry
+          app.manager.retry_errors
         end
 
         def respond_to?(method)
