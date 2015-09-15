@@ -68,10 +68,7 @@ module Emque
             begin
               logger.info "#{log_prefix} processing message #{payload}"
               message = Emque::Consuming::Message.new(
-                :offset => nil,
-                :original => payload,
-                :partition => nil,
-                :topic => topic.to_sym
+                :original => payload
               )
               ::Emque::Consuming::Consumer.new.consume(:process, message)
               channel.ack(delivery_info.delivery_tag)

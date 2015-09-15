@@ -23,7 +23,7 @@ module Emque
 
       def route(message)
         Emque::Consuming.application.router.route(
-          message.topic,
+          message.values.fetch(:metadata).fetch(:topic),
           message.values.fetch(:metadata).fetch(:type),
           message
         )
