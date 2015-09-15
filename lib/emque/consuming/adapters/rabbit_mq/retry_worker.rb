@@ -8,28 +8,20 @@ module Emque
           include Emque::Consuming::Helpers
 
           def initialize(connection)
+            self.connection = connection
             self.channel = connection.create_channel
-            self.queue = channel.queue(
-              "#{config.app_name}.error",
-              :durable => true,
-              :auto_delete => false,
-              :arguments => {
-                "x-dead-letter-exchange" => "#{config.app_name}.error"
-              }
-            )
           end
-
-          attr_accessor :channel, :queue
 
           def retry_errors
             logger.info "RabbitMQ RetryWorker: starting"
-            loop do
-              delivery_info, properties, payload = queue.pop(
+            channel.open if channel.closed?
+            error_queue.message_count.times do
+              delivery_info, properties, payload = error_queue.pop(
                 {:manual_ack => true}
               )
-              break if delivery_info.nil? && properties.nil? && payload.nil?
               retry_message(delivery_info, properties, payload)
             end
+            channel.close
             logger.info "RabbitMQ RetryWorker: done"
           end
 
@@ -48,7 +40,6 @@ module Emque
             )
           end
 
->>>>>>> 8261078... blah
           def retry_message(delivery_info, metadata, payload)
             begin
               logger.info "RabbitMQ RetryWorker: processing message #{payload}"

@@ -76,7 +76,7 @@ module Emque
 
           def initialize_error_queue
             channel = @connection.create_channel
-            error_exchange = channel.fanout(
+            error_exchange = channel.direct(
               "#{config.app_name}.error",
               :durable => true,
               :auto_delete => false
@@ -89,6 +89,7 @@ module Emque
                 "x-dead-letter-exchange" => "#{config.app_name}.error"
               }
             ).bind(error_exchange)
+            channel.close
           end
 
           def new_worker(topic)
