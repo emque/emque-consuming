@@ -72,7 +72,7 @@ module Emque
               )
               ::Emque::Consuming::Consumer.new.consume(:process, message)
               channel.ack(delivery_info.delivery_tag)
-            rescue
+            rescue StandardError
               channel.nack(delivery_info.delivery_tag)
             end
           end
