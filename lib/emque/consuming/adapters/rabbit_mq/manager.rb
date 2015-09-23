@@ -76,13 +76,13 @@ module Emque
 
           def initialize_error_queue
             channel = @connection.create_channel
-            error_exchange = channel.direct(
+            error_exchange = channel.fanout(
               "#{config.app_name}.error",
               :durable => true,
               :auto_delete => false
             )
             channel.queue(
-              "#{config.app_name}.error",
+              "emque.#{config.app_name}.error",
               :durable => true,
               :auto_delete => false,
               :arguments => {
