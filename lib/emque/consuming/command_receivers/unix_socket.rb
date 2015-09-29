@@ -95,6 +95,7 @@ errors clear                  # reset the error count to 0
 errors down                   # decrease the acceptable error threshold by 1
 errors expire_after <seconds> # changes the expiration time for future errors
 errors up                     # increase the acceptable error threshold by 1
+errors retry                  # Reprocesses all messages in the error queue
 restart                       # restart all workers
 stop                          # turn the application off
 -------

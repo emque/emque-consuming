@@ -18,6 +18,7 @@ module Emque
           def stop; end
           def worker(topic:, command:); end
           def workers(flatten: false); end
+          def retry_errors; end
         end
       end
     end

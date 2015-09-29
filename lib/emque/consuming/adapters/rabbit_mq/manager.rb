@@ -17,6 +17,7 @@ module Emque
 
           def start
             setup_connection
+            initialize_error_queue
             initialize_workers
             logger.info "RabbitMQ Manager: starting #{worker_count} workers..."
             workers(:flatten => true).each do |worker|
@@ -54,6 +55,10 @@ module Emque
             flatten ? @workers.values.flatten : @workers
           end
 
+          def retry_errors
+            RetryWorker.new(@connection).retry_errors
+          end
+
           private
 
           attr_writer :workers
@@ -67,6 +72,24 @@ module Emque
                 end
               end
             }
+          end
+
+          def initialize_error_queue
+            channel = @connection.create_channel
+            error_exchange = channel.fanout(
+              "#{config.app_name}.error",
+              :durable => true,
+              :auto_delete => false
+            )
+            channel.queue(
+              "emque.#{config.app_name}.error",
+              :durable => true,
+              :auto_delete => false,
+              :arguments => {
+                "x-dead-letter-exchange" => "#{config.app_name}.error"
+              }
+            ).bind(error_exchange)
+            channel.close
           end
 
           def new_worker(topic)

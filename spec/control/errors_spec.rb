@@ -159,4 +159,12 @@ describe Emque::Consuming::Control::Errors do
       expect { control.up }.to change { config.error_limit }.to(2)
     end
   end
+
+  describe "#retry" do
+    it "starts the retry worker" do
+      control = Emque::Consuming::Control::Errors.new
+      config = Emque::Consuming::Configuration.new
+      control.retry
+    end
+  end
 end

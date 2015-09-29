@@ -25,14 +25,20 @@ module Emque
             #        a new channel in each worker.
             # https://github.com/jhbabon/amqp-celluloid/blob/master/lib/consumer.rb
             self.channel = connection.create_channel
-            channel.prefetch(config.adapter.options[:prefetch]) if config.adapter.options[:prefetch]
+
+            if config.adapter.options[:prefetch]
+              channel.prefetch(config.adapter.options[:prefetch])
+            end
 
             self.queue =
               channel
                 .queue(
-                  "#{config.app_name}.#{topic}",
+                  "emque.#{config.app_name}.#{topic}",
                   :durable => config.adapter.options[:durable],
-                  :auto_delete => config.adapter.options[:auto_delete]
+                  :auto_delete => config.adapter.options[:auto_delete],
+                  :arguments => {
+                    "x-dead-letter-exchange" => "#{config.app_name}.error"
+                  }
                 )
                 .bind(
                   channel.fanout(topic, :durable => true, :auto_delete => false)
@@ -59,15 +65,16 @@ module Emque
           attr_accessor :name, :channel, :queue
 
           def process_message(delivery_info, metadata, payload)
-            logger.info "#{log_prefix} processing message #{payload}"
-            message = Emque::Consuming::Message.new(
-              :offset => nil,
-              :original => payload,
-              :partition => nil,
-              :topic => topic.to_sym
-            )
-            ::Emque::Consuming::Consumer.new.consume(:process, message)
-            channel.ack(delivery_info.delivery_tag)
+            begin
+              logger.info "#{log_prefix} processing message #{payload}"
+              message = Emque::Consuming::Message.new(
+                :original => payload
+              )
+              ::Emque::Consuming::Consumer.new.consume(:process, message)
+              channel.ack(delivery_info.delivery_tag)
+            rescue StandardError
+              channel.nack(delivery_info.delivery_tag)
+            end
           end
 
           def log_prefix
