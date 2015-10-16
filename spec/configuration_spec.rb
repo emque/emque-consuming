@@ -14,6 +14,20 @@ describe Emque::Consuming::Configuration do
     end
   end
 
+  describe "#max_workers" do
+    it "includes a reasonable, if arbitrary, default limit" do
+      config = Emque::Consuming::Configuration.new
+
+      expect(config.max_workers.fetch(:limit)).to eq 10
+    end
+
+    it "includes a generic, though still helpful, default message" do
+      config = Emque::Consuming::Configuration.new
+
+      expect(config.max_workers.fetch(:error_message)).to eq "Max workers reached."
+    end
+  end
+
   describe "#to_hsh" do
     it "returns a hash" do
       config = Emque::Consuming::Configuration.new
@@ -23,8 +37,8 @@ describe Emque::Consuming::Configuration do
     it "returns the value of all the accessors" do
       accessors = [
         :app_name, :adapter, :env, :error_handlers, :error_limit,
-        :error_expiration, :log_level, :status_port, :status_host, :status,
-        :socket_path, :shutdown_handlers
+        :error_expiration, :log_level, :max_workers, :status_port,
+        :status_host, :status, :socket_path, :shutdown_handlers
       ]
       config = Emque::Consuming::Configuration.new
 

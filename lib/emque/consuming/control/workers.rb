@@ -11,7 +11,11 @@ module Emque
         end
 
         def up(topic)
-          app.manager.worker(topic: topic.to_sym, command: :up)
+          if app.manager.worker_count < config.max_workers.fetch(:limit)
+            app.manager.worker(topic: topic.to_sym, command: :up)
+          else
+            :max_worker_limit_reached
+          end
         end
 
         def respond_to?(method)

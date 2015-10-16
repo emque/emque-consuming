@@ -5,7 +5,7 @@ module Emque
     class Configuration
       attr_accessor :app_name, :adapter, :error_handlers, :error_limit,
         :error_expiration, :status, :status_port, :status_host, :socket_path,
-        :shutdown_handlers
+        :shutdown_handlers, :max_workers
       attr_writer :env, :log_level
 
       def initialize
@@ -14,6 +14,10 @@ module Emque
         @error_limit        = 5
         @error_expiration   = 3600 # 60 minutes
         @log_level          = nil
+        # See README.md for guidance on setting max_workers
+        @max_workers        = {
+          :limit => 10, :error_message => "Max workers reached."
+        }
         @status_port        = 10000
         @status_host        = "0.0.0.0"
         @status             = :off # :on
@@ -47,6 +51,7 @@ module Emque
             :error_limit,
             :error_expiration,
             :log_level,
+            :max_workers,
             :status_port,
             :status_host,
             :status,

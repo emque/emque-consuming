@@ -56,10 +56,12 @@ module Emque
                   return render_status
                 end
               else
-                if req[2].is_a?(String) &&
-                   app.manager.workers.has_key?(req[2].to_sym) &&
-                   runner.control.workers(*req[2..-1]) == true
-                  return render_status
+                if req[2].is_a?(String) && app.manager.workers.has_key?(req[2].to_sym)
+                   if runner.control.workers(*req[2..-1]) == true
+                     return render_status
+                   else
+                     return render_400
+                   end
                 end
               end
             end
@@ -69,6 +71,18 @@ module Emque
 
           def render_404
             [404, {}, ["Not Found"]]
+          end
+
+          def render_400
+            [
+              400,
+              {},
+              [
+                "#{config.max_workers.fetch(:error_message) {
+                  "Max workers reached."
+                }}"
+              ]
+            ]
           end
 
           def render_status(additional = {})

@@ -59,6 +59,10 @@ module Emque
             RetryWorker.new(@connection).retry_errors
           end
 
+          def worker_count
+            workers(:flatten => true).size
+          end
+
           private
 
           attr_writer :workers
@@ -99,10 +103,6 @@ module Emque
           def setup_connection
             @connection = Bunny.new(config.adapter.options[:url])
             @connection.start
-          end
-
-          def worker_count
-            workers(:flatten => true).size
           end
         end
       end
