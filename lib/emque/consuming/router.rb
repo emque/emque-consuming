@@ -1,6 +1,8 @@
 module Emque
   module Consuming
     class Router
+      ConfigurationError = Class.new(StandardError)
+
       def initialize
         self.mappings = {}
       end
@@ -21,6 +23,20 @@ module Emque
 
           if method
             consumer = mapping.consumer
+
+            if mapping.middleware?
+              message = message.with(
+                :values =>
+                  Oj.load(
+                    mapping
+                      .middleware
+                      .inject(message.original) { |compiled, callable|
+                        callable.call(compiled)
+                      },
+                    :symbol_keys => true
+                  )
+              )
+            end
 
             consumer.new.consume(method, message)
           end
@@ -44,14 +60,16 @@ module Emque
       attr_accessor :mappings
 
       class Mapping
-        attr_reader :consumer, :topic, :workers
+        attr_reader :consumer, :middleware, :topic, :workers
 
         def initialize(mapping, &block)
           self.topic = mapping.keys.first
           self.workers = mapping.fetch(:workers, 1)
           self.consumer = mapping.values.first
           self.mapping = {}
+          self.middleware = []
 
+          mapping.fetch(:middleware, []).map(&:use)
           self.instance_eval(&block)
         end
 
@@ -59,14 +77,30 @@ module Emque
           mapping.merge!(map)
         end
 
+        def middleware?
+          middleware.count > 0
+        end
+
         def route(type)
           mapping[type]
+        end
+
+        def use(callable)
+          unless callable.respond_to?(:call) and callable.arity == 1
+            raise(
+              ConfigurationError,
+              "#{self.class.name}#use must receive a callable object with an " +
+              "arity of one."
+            )
+          end
+
+          middleware << callable
         end
 
         private
 
         attr_accessor :mapping
-        attr_writer :consumer, :topic, :workers
+        attr_writer :consumer, :middleware, :topic, :workers
       end
     end
   end
