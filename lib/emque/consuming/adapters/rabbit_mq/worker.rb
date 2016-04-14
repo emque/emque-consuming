@@ -66,7 +66,8 @@ module Emque
 
           def process_message(delivery_info, metadata, payload)
             begin
-              logger.info "#{log_prefix} processing message #{payload}"
+              logger.info "#{log_prefix} processing message #{metadata}"
+              logger.debug "#{log_prefix} payload #{payload}"
               message = Emque::Consuming::Message.new(
                 :original => payload
               )

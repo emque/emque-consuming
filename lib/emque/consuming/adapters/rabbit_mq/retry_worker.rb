@@ -13,7 +13,7 @@ module Emque
           end
 
           def retry_errors
-            logger.info "RabbitMQ RetryWorker: starting"
+            logger.info "#{log_prefix} starting"
             channel.open if channel.closed?
             error_queue.message_count.times do
               delivery_info, properties, payload = error_queue.pop(
@@ -22,7 +22,7 @@ module Emque
               retry_message(delivery_info, properties, payload)
             end
             channel.close
-            logger.info "RabbitMQ RetryWorker: done"
+            logger.info "#{log_prefix} done"
           end
 
           private
@@ -40,9 +40,14 @@ module Emque
             )
           end
 
+          def log_prefix
+            "RabbitMQ RetryWorker:"
+          end
+
           def retry_message(delivery_info, metadata, payload)
             begin
-              logger.info "RabbitMQ RetryWorker: processing message #{payload}"
+              logger.info "#{log_prefix} processing message #{metadata}"
+              logger.debug "#{log_prefix} payload #{payload}"
               message = Emque::Consuming::Message.new(
                 :original => payload
               )
