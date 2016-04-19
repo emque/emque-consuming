@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.required_ruby_version = ">= 2.1"
 
-  spec.add_dependency "celluloid", "0.16.0"
+  spec.add_dependency "celluloid", "~> 0.17.0"
   spec.add_dependency "dante",     "~> 0.2.0"
   spec.add_dependency "oj",        "~> 2.11.4"
   spec.add_dependency "virtus",    "~> 1.0"
