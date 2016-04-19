@@ -105,7 +105,7 @@ module Emque
       end
 
       def log_prefix
-        "#{config.app_name.capitalize} Application"
+        config.human_app_name
       end
     end
   end

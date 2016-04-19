@@ -115,7 +115,7 @@ stop                          # turn the application off
           attr_accessor :args, :command
 
           def app_name
-            config.app_name.capitalize
+            config.human_app_name
           end
 
           def configuration

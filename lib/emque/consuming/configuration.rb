@@ -3,10 +3,10 @@ require "logger"
 module Emque
   module Consuming
     class Configuration
-      attr_accessor :app_name, :adapter, :error_handlers, :error_limit,
-        :error_expiration, :status, :status_port, :status_host, :socket_path,
-        :shutdown_handlers
+      attr_accessor :adapter, :error_handlers, :error_limit, :error_expiration,
+        :status, :status_port, :status_host, :socket_path, :shutdown_handlers
       attr_writer :env, :log_level
+      attr_reader :app_name
 
       def initialize
         @app_name = ""
@@ -21,12 +21,25 @@ module Emque
         @shutdown_handlers  = []
       end
 
+      def app_name=(value)
+        @human_app_name = nil
+        @app_name = value
+      end
+
       def env
         Emque::Consuming.application.emque_env
       end
 
       def env_var
         @env
+      end
+
+      def human_app_name
+        @human_app_name ||= app_name
+          .split(/[_\-\.]/)
+          .map(&:capitalize)
+          .tap { |parts| parts << "Application" }
+          .join(" ")
       end
 
       def log_level

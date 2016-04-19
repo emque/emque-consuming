@@ -80,7 +80,7 @@ module Emque
           end
           receivers.each(&:stop)
           logger.info("Graceful shutdown successful.")
-          logger.info("#{config.app_name.capitalize} stopped.")
+          logger.info("#{config.human_app_name} stopped.")
           persist.exit if persist.alive?
         else
           Emque::Consuming::Transmitter.send(
