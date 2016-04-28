@@ -62,12 +62,18 @@ module Emque
 
       def verify_error_status
         if error_tracker.limit_reached?
-          handle_shutdown
-          runner.stop
+          if auto_shutdown_enabled
+            handle_shutdown
+            runner.stop
+          end
         end
       end
 
       # private
+
+      def auto_shutdown_enabled
+        config.auto_shutdown == "true"
+      end
 
       def ensure_adapter_is_configured!
         if config.adapter.nil?

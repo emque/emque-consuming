@@ -22,9 +22,9 @@ describe Emque::Consuming::Configuration do
 
     it "returns the value of all the accessors" do
       accessors = [
-        :app_name, :adapter, :env, :error_handlers, :error_limit,
-        :error_expiration, :log_level, :status_port, :status_host, :status,
-        :socket_path, :shutdown_handlers
+        :app_name, :auto_shutdown, :adapter, :env, :error_handlers,
+        :error_limit, :error_expiration, :log_level, :status_port, :status_host,
+        :status, :socket_path, :shutdown_handlers
       ]
       config = Emque::Consuming::Configuration.new
 

@@ -132,6 +132,18 @@ module Emque
             options[:env] = arg
           end
 
+          o.on(
+            "--auto-shutdown (false|true)",
+            "Enable or disable auto shutdown on reaching the error limit"
+          ) do |arg|
+            exp = arg.to_s
+            if exp == "true"
+              options[:auto_shutdown] = true
+            else
+              options[:auto_shutdown] = false
+            end
+          end
+
           o.banner = "emque <options> (start|stop|new|console|help) <name (new only)>"
         }
       end
