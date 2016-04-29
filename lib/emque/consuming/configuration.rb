@@ -3,23 +3,26 @@ require "logger"
 module Emque
   module Consuming
     class Configuration
-      attr_accessor :app_name, :auto_shutdown, :adapter, :error_handlers,
-        :error_limit, :error_expiration, :status, :status_port, :status_host,
+      attr_accessor :app_name, :adapter, :auto_shutdown, :error_handlers,
+        :error_limit, :error_expiration, :retryable_errors,
+        :retryable_error_limit, :status, :status_port, :status_host,
         :socket_path, :shutdown_handlers
       attr_writer :env, :log_level
 
       def initialize
-        @app_name           = ""
+        @app_name              = ""
         @auto_shutdown      = false
-        @error_handlers     = []
-        @error_limit        = 5
-        @error_expiration   = 3600 # 60 minutes
-        @log_level          = nil
-        @status_port        = 10000
-        @status_host        = "0.0.0.0"
-        @status             = :off # :on
-        @socket_path        = "tmp/emque.sock"
-        @shutdown_handlers  = []
+        @error_handlers        = []
+        @error_limit           = 5
+        @error_expiration      = 3600 # 60 minutes
+        @log_level             = nil
+        @retryable_errors      = []
+        @retryable_error_limit = 3
+        @status_port           = 10000
+        @status_host           = "0.0.0.0"
+        @status                = :off # :on
+        @socket_path           = "tmp/emque.sock"
+        @shutdown_handlers     = []
       end
 
       def env
@@ -49,6 +52,8 @@ module Emque
             :error_limit,
             :error_expiration,
             :log_level,
+            :retryable_errors,
+            :retryable_error_limit,
             :status_port,
             :status_host,
             :status,

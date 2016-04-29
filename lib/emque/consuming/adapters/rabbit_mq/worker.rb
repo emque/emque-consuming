@@ -73,9 +73,31 @@ module Emque
               )
               ::Emque::Consuming::Consumer.new.consume(:process, message)
               channel.ack(delivery_info.delivery_tag)
-            rescue StandardError
-              channel.nack(delivery_info.delivery_tag)
+            rescue StandardError => ex
+              if retryable_errors.any? { |error| ex.class.to_s =~ /#{error}/ }
+                headers = metadata[:headers] || {}
+                retry_count = headers.fetch("x-retry-count", 0)
+
+                if retry_count <= retryable_error_limit
+                  logger.info("Retrying Retryable Error: #{ex.class}, with count #{retry_count}")
+                  headers["x-retry-count"] = retry_count + 1
+                  queue.publish(payload, {:headers =>headers})
+                else
+                  logger.info("Retryable Error: #{ex.class} ran out of retires at #{retry_count}, dropping message.")
+                  channel.nack(delivery_info.delivery_tag)
+                end
+              else
+                channel.nack(delivery_info.delivery_tag)
+              end
             end
+          end
+
+          def retryable_errors
+            config.retryable_errors
+          end
+
+          def retryable_error_limit
+            config.retryable_error_limit
           end
 
           def log_prefix
