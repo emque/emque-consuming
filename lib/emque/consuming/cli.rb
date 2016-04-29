@@ -142,6 +142,12 @@ module Emque
             else
               options[:auto_shutdown] = false
             end
+
+            "--retry-error-limit N",
+            "Max number of times to retry a retryable error"
+          ) do |arg|
+            retry_limit = arg.to_i
+            options[:retryable_error_limit] = retry_limit if retry_limit > 0
           end
 
           o.banner = "emque <options> (start|stop|new|console|help) <name (new only)>"
