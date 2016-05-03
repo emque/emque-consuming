@@ -75,20 +75,24 @@ module Emque
               channel.ack(delivery_info.delivery_tag)
             rescue StandardError => ex
               if retryable_errors.any? { |error| ex.class.to_s =~ /#{error}/ }
-                headers = metadata[:headers] || {}
-                retry_count = headers.fetch("x-retry-count", 0)
-
-                if retry_count <= retryable_error_limit
-                  logger.info("Retrying Retryable Error: #{ex.class}, with count #{retry_count}")
-                  headers["x-retry-count"] = retry_count + 1
-                  queue.publish(payload, {:headers =>headers})
-                else
-                  logger.info("Retryable Error: #{ex.class} ran out of retires at #{retry_count}, dropping message.")
-                  channel.nack(delivery_info.delivery_tag)
-                end
+                retry_errors(delivery_info, metadata, payload)
               else
                 channel.nack(delivery_info.delivery_tag)
               end
+            end
+          end
+
+          def retry_errors(delivery_info, metadata, payload)
+            headers = metadata[:headers] || {}
+            retry_count = headers.fetch("x-retry-count", 0)
+
+            if retry_count <= retryable_error_limit
+              logger.info("Retrying Retryable Error #{ex.class}, with count #{retry_count}")
+              headers["x-retry-count"] = retry_count + 1
+              queue.publish(payload, {:headers =>headers})
+            else
+              logger.info("Retryable Error: #{ex.class} ran out of retires at #{retry_count}")
+              channel.nack(delivery_info.delivery_tag)
             end
           end
 
