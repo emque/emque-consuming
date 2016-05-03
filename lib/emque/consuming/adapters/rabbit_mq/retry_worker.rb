@@ -19,7 +19,9 @@ module Emque
               delivery_info, properties, payload = error_queue.pop(
                 {:manual_ack => true}
               )
-              retry_message(delivery_info, properties, payload)
+              if delivery_info && properties && payload
+                retry_message(delivery_info, properties, payload)
+              end
             end
             channel.close
             logger.info "#{log_prefix} done"
