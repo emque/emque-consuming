@@ -43,6 +43,25 @@ module Emque
                 .bind(
                   channel.fanout(topic, :durable => true, :auto_delete => false)
                 )
+            self.delay_queue =
+              channel
+              .queue(
+                "emque.#{config.app_name}.delayed-message",
+                :durable => config.adapter.options[:durable],
+                :auto_delete => config.adapter.options[:auto_delete]
+              ).bind(
+                channel.exchange(
+                  "emque.#{config.app_name}.delayed-message",
+                  {
+                    :type => "x-delayed-message",
+                    :durable => true,
+                    :auto_delete => false,
+                    :arguments => {
+                      "x-delayed-type" => "direct"
+                    }
+                  }
+                )
+              ) if enable_delayed_messages
           end
 
           def start
@@ -74,8 +93,12 @@ module Emque
               ::Emque::Consuming::Consumer.new.consume(:process, message)
               channel.ack(delivery_info.delivery_tag)
             rescue StandardError => ex
-              if retryable_errors.any? { |error| ex.class.to_s =~ /#{error}/ }
-                retry_errors(delivery_info, metadata, payload)
+              if enabled_delayed_messages
+                if retryable_errors.any? { |error| ex.class.to_s =~ /#{error}/ }
+                  retry_errors(delivery_info, metadata, payload)
+                else
+                  channel.nack(delivery_info.delivery_tag)
+                end
               else
                 channel.nack(delivery_info.delivery_tag)
               end
@@ -89,11 +112,21 @@ module Emque
             if retry_count <= retryable_error_limit
               logger.info("Retrying Retryable Error #{ex.class}, with count #{retry_count}")
               headers["x-retry-count"] = retry_count + 1
-              queue.publish(payload, {:headers =>headers})
+              headers["x-delay"] = delay_ms_time(retry_count)
+              # need to publish to
+              delay_queue.publish(payload, {:headers =>headers})
             else
               logger.info("Retryable Error: #{ex.class} ran out of retires at #{retry_count}")
               channel.nack(delivery_info.delivery_tag)
             end
+          end
+
+          def delay_ms_time(retry_count)
+            500 * ( 2 ** retry_count) * rand(1..10)
+          end
+
+          def enable_delayed_messages
+            config.enable_delayed_messages
           end
 
           def retryable_errors
