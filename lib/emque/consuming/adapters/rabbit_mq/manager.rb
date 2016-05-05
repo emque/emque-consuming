@@ -18,6 +18,7 @@ module Emque
           def start
             setup_connection
             initialize_error_queue
+            initialize_delayed_message_queue
             initialize_workers
             logger.info "RabbitMQ Manager: starting #{worker_count} workers..."
             workers(:flatten => true).each do |worker|
@@ -62,6 +63,7 @@ module Emque
           private
 
           attr_writer :workers
+          attr_accessor :delayed_message_exchange, :delayed_queue
 
           def initialize_workers
             self.workers = {}.tap { |workers|
@@ -72,6 +74,36 @@ module Emque
                 end
               end
             }
+          end
+
+          def enable_delayed_message
+            config.enable_delayed_message
+          end
+
+          def initialize_delayed_message_queue
+            if enable_delayed_message
+              channel = @connection.create_channel
+              self.delayed_message_exchange = channel.exchange(
+                "emque.#{config.app_name}.delayed_message",
+                {
+                  :type => "x-delayed-message",
+                  :durable => true,
+                  :auto_delete => false,
+                  :arguments => {
+                    "x-delayed-type" => "direct",
+                  }
+                }
+              )
+
+              self.delayed_queue = channel.queue(
+                "emque.#{config.app_name}.delayed_message",
+                :durable => config.adapter.options[:durable],
+                :auto_delete => config.adapter.options[:auto_delete],
+                :arguments => {
+                  "x-dead-letter-exchange" => "#{config.app_name}.error"
+                }
+              ).bind(delayed_message_exchange)
+            end
           end
 
           def initialize_error_queue
@@ -93,7 +125,18 @@ module Emque
           end
 
           def new_worker(topic)
-            Worker.new_link(@connection, topic)
+            # rethink this one, get timeout errors when attempting to subscribe
+            # migrate logic to a delayed_message worker from mq worker
+            # and recreate queues there?
+            if enable_delayed_message
+              options = {
+                :delayed_message_exchange => delayed_message_exchange,
+                :delayed_queue => delayed_queue
+              }
+            else
+              options = {}
+            end
+            Worker.new_link(@connection, topic, options)
           end
 
           def setup_connection

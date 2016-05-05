@@ -16,10 +16,12 @@ module Emque
             end
           end
 
-          def initialize(connection, topic)
+          def initialize(connection, topic, options = {})
             self.topic = topic
             self.name = "#{self.topic} worker"
             self.shutdown = false
+            self.delayed_message_exchange = options[:delayed_message_exchange]
+            self.delayed_queue = options[:delayed_queue]
 
             # @note: channels are not thread safe, so is better to use
             #        a new channel in each worker.
@@ -43,30 +45,17 @@ module Emque
                 .bind(
                   channel.fanout(topic, :durable => true, :auto_delete => false)
                 )
-            self.delay_queue =
-              channel
-              .queue(
-                "emque.#{config.app_name}.delayed-message",
-                :durable => config.adapter.options[:durable],
-                :auto_delete => config.adapter.options[:auto_delete]
-              ).bind(
-                channel.exchange(
-                  "emque.#{config.app_name}.delayed-message",
-                  {
-                    :type => "x-delayed-message",
-                    :durable => true,
-                    :auto_delete => false,
-                    :arguments => {
-                      "x-delayed-type" => "direct"
-                    }
-                  }
-                )
-              ) if enable_delayed_messages
           end
 
           def start
             logger.info "#{log_prefix} starting..."
             queue.subscribe(:manual_ack => true, &method(:process_message))
+            if enable_delayed_message
+              delayed_queue.subscribe(
+                :manual_ack => true,
+                &method(:process_message)
+              )
+            end
             logger.debug "#{log_prefix} started"
           end
 
@@ -81,7 +70,12 @@ module Emque
 
           private
 
-          attr_accessor :name, :channel, :queue
+          attr_accessor :name, :channel, :queue, :delayed_queue,
+            :delayed_message_exchange
+
+          def enable_delayed_message
+            config.enable_delayed_message
+          end
 
           def process_message(delivery_info, metadata, payload)
             begin
@@ -93,9 +87,9 @@ module Emque
               ::Emque::Consuming::Consumer.new.consume(:process, message)
               channel.ack(delivery_info.delivery_tag)
             rescue StandardError => ex
-              if enabled_delayed_messages
+              if enable_delayed_message
                 if retryable_errors.any? { |error| ex.class.to_s =~ /#{error}/ }
-                  retry_errors(delivery_info, metadata, payload)
+                  retry_errors(delivery_info, metadata, payload, ex)
                 else
                   channel.nack(delivery_info.delivery_tag)
                 end
@@ -105,7 +99,7 @@ module Emque
             end
           end
 
-          def retry_errors(delivery_info, metadata, payload)
+          def retry_errors(delivery_info, metadata, payload, ex)
             headers = metadata[:headers] || {}
             retry_count = headers.fetch("x-retry-count", 0)
 
@@ -113,20 +107,16 @@ module Emque
               logger.info("Retrying Retryable Error #{ex.class}, with count #{retry_count}")
               headers["x-retry-count"] = retry_count + 1
               headers["x-delay"] = delay_ms_time(retry_count)
-              # need to publish to
-              delay_queue.publish(payload, {:headers =>headers})
+              channel.ack(delivery_info.delivery_tag)
+              delayed_message_exchange.publish(payload, {:headers =>headers})
             else
-              logger.info("Retryable Error: #{ex.class} ran out of retires at #{retry_count}")
+              logger.info("Retryable Error: #{ex.class} ran out of retries at #{retry_count}")
               channel.nack(delivery_info.delivery_tag)
             end
           end
 
           def delay_ms_time(retry_count)
             500 * ( 2 ** retry_count) * rand(1..10)
-          end
-
-          def enable_delayed_messages
-            config.enable_delayed_messages
           end
 
           def retryable_errors
