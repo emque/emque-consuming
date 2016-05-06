@@ -10,7 +10,7 @@ module Emque
 
           def actor_died(actor, reason)
             unless shutdown
-              logger.error "RabbitMQ Manager: actor_died - #{actor.inspect} "+
+              logger.error "RabbitMQ Manager: actor_died - #{actor.inspect} " +
                            "died: #{reason}"
             end
           end
@@ -19,10 +19,15 @@ module Emque
             setup_connection
             initialize_error_queue
             initialize_workers
-            initialize_delayed_message_workers
+            initialize_delayed_message_workers if enable_delayed_message
             logger.info "RabbitMQ Manager: starting #{worker_count} workers..."
             workers(:flatten => true).each do |worker|
               worker.async.start
+            end
+            if enable_delayed_message
+              delayed_message_workers.each do |worker|
+                worker.async.start
+              end
             end
           end
 
@@ -33,6 +38,12 @@ module Emque
               workers(:flatten => true).each do |worker|
                 logger.info "RabbitMQ Manager: stopping #{worker.topic} worker..."
                 worker.stop
+              end
+              if enable_delayed_message
+                delayed_message_workers.each_with_index do |worker, i|
+                  logger.info "RabbitMQ Manager: stopping #{worker.class} #{i + 1} worker..."
+                  worker.stop
+                end
               end
             end
 
@@ -56,13 +67,17 @@ module Emque
             flatten ? @workers.values.flatten : @workers
           end
 
+          def delayed_message_workers
+            @delayed_message_workers
+          end
+
           def retry_errors
             RetryWorker.new(@connection).retry_errors
           end
 
           private
 
-          attr_writer :workers
+          attr_writer :workers, :delayed_message_workers
 
           def initialize_workers
             self.workers = {}.tap { |workers|
@@ -76,7 +91,11 @@ module Emque
           end
 
           def initialize_delayed_message_workers
-            DelayedMessageWorker.new_link(@connection).async.start
+            self.delayed_message_workers = [].tap { |workers|
+              config.delayed_message_workers.times do
+                workers << DelayedMessageWorker.new_link(@connection)
+              end
+            }
           end
 
           def enable_delayed_message
