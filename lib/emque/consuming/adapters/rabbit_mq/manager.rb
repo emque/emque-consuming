@@ -72,7 +72,7 @@ module Emque
           end
 
           def retry_errors
-            RetryWorker.new(@connection).retry_errors
+            ErrorWorker.new(@connection).retry_errors
           end
 
           private
