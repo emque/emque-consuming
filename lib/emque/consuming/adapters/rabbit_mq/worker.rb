@@ -16,12 +16,10 @@ module Emque
             end
           end
 
-          def initialize(connection, topic, options = {})
+          def initialize(connection, topic)
             self.topic = topic
             self.name = "#{self.topic} worker"
             self.shutdown = false
-            self.delayed_message_exchange = options[:delayed_message_exchange]
-            self.delayed_queue = options[:delayed_queue]
 
             # @note: channels are not thread safe, so is better to use
             #        a new channel in each worker.
@@ -50,12 +48,6 @@ module Emque
           def start
             logger.info "#{log_prefix} starting..."
             queue.subscribe(:manual_ack => true, &method(:process_message))
-            if enable_delayed_message
-              delayed_queue.subscribe(
-                :manual_ack => true,
-                &method(:process_message)
-              )
-            end
             logger.debug "#{log_prefix} started"
           end
 
@@ -70,8 +62,7 @@ module Emque
 
           private
 
-          attr_accessor :name, :channel, :queue, :delayed_queue,
-            :delayed_message_exchange
+          attr_accessor :name, :channel, :queue
 
           def enable_delayed_message
             config.enable_delayed_message
@@ -88,35 +79,42 @@ module Emque
               channel.ack(delivery_info.delivery_tag)
             rescue StandardError => ex
               if enable_delayed_message
-                if retryable_errors.any? { |error| ex.class.to_s =~ /#{error}/ }
-                  retry_errors(delivery_info, metadata, payload, ex)
-                else
-                  channel.nack(delivery_info.delivery_tag)
-                end
+                publish_to_delayed_message(delivery_info, metadata, payload)
               else
                 channel.nack(delivery_info.delivery_tag)
               end
             end
           end
 
-          def retry_errors(delivery_info, metadata, payload, ex)
+          def publish_to_delayed_message(delivery_info, metadata, payload)
             headers = metadata[:headers] || {}
-            retry_count = headers.fetch("x-retry-count", 0)
-
-            if retry_count <= retryable_error_limit
-              logger.info("Retrying Retryable Error #{ex.class}, with count #{retry_count}")
-              headers["x-retry-count"] = retry_count + 1
-              headers["x-delay"] = delay_ms_time(retry_count)
-              channel.ack(delivery_info.delivery_tag)
-              delayed_message_exchange.publish(payload, {:headers =>headers})
-            else
-              logger.info("Retryable Error: #{ex.class} ran out of retries at #{retry_count}")
-              channel.nack(delivery_info.delivery_tag)
-            end
+            headers["x-delay"] = 1000
+            channel.ack(delivery_info.delivery_tag)
+            delayed_message_exchange.publish(payload, { :headers => headers })
           end
 
-          def delay_ms_time(retry_count)
-            500 * ( 2 ** retry_count) * rand(1..10)
+          def delayed_message_exchange
+            delayed_message_exchange = channel.exchange(
+              "emque.#{config.app_name}.delayed_message",
+              {
+                :type => "x-delayed-message",
+                :durable => true,
+                :auto_delete => false,
+                :arguments => {
+                  "x-delayed-type" => "direct",
+                }
+              }
+            )
+            channel.queue(
+              "emque.#{config.app_name}.delayed_message",
+              :durable => config.adapter.options[:durable],
+              :auto_delete => config.adapter.options[:auto_delete],
+              :arguments => {
+                "x-dead-letter-exchange" => "#{config.app_name}.error"
+              }
+            ).bind(delayed_message_exchange)
+
+            delayed_message_exchange
           end
 
           def retryable_errors

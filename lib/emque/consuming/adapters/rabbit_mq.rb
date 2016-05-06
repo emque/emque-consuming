@@ -15,6 +15,7 @@ module Emque
           require_relative "rabbit_mq/manager"
           require_relative "rabbit_mq/worker"
           require_relative "rabbit_mq/retry_worker"
+          require_relative "rabbit_mq/delayed_message_worker"
         end
 
         def self.manager
