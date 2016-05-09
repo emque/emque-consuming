@@ -22,8 +22,9 @@ describe Emque::Consuming::Configuration do
 
     it "returns the value of all the accessors" do
       accessors = [
-        :app_name, :adapter, :auto_shutdown, :env, :error_handlers,
-        :error_limit, :error_expiration, :log_level, :retryable_errors,
+        :app_name, :adapter, :auto_shutdown, :delayed_message_workers,
+        :env, :enable_delayed_message, :error_handlers, :error_limit,
+        :error_expiration, :log_level, :retryable_errors,
         :retryable_error_limit, :status_port, :status_host, :status,
         :socket_path, :shutdown_handlers
       ]
