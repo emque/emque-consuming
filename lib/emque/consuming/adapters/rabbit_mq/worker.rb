@@ -79,7 +79,11 @@ module Emque
               channel.ack(delivery_info.delivery_tag)
             rescue StandardError => ex
               if enable_delayed_message
-                publish_to_delayed_message(delivery_info, metadata, payload)
+                begin
+                  publish_to_delayed_message(delivery_info, metadata, payload)
+                rescue
+                  channel.ack(delivery_info.delivery_tag)
+                end
               else
                 channel.nack(delivery_info.delivery_tag)
               end
@@ -89,8 +93,8 @@ module Emque
           def publish_to_delayed_message(delivery_info, metadata, payload)
             headers = metadata[:headers] || {}
             headers["x-delay"] = 1000
-            channel.ack(delivery_info.delivery_tag)
             delayed_message_exchange.publish(payload, { :headers => headers })
+            channel.ack(delivery_info.delivery_tag)
           end
 
           def delayed_message_exchange
