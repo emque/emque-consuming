@@ -157,6 +157,7 @@ emque <options> (start|stop|new|console|help) <name (new only)>
     -x, --error-expiration SECONDS   Expire errors after SECONDS
         --app-name NAME              Run the application as NAME
         --env (ex. production)       Set the application environment, overrides EMQUE_ENV
+        --auto-shutdown (false|true) Enable or disable auto shutdown on reaching the error limit
 ```
 
 and a series of rake commands:
