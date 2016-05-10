@@ -1,4 +1,4 @@
-# Emque Producing CHANGELOG
+# Emque Consuming CHANGELOG
 
 - [Add in a configuration option to disable auto shutdown on reaching the error limit](https://github.com/emque/emque-consuming/pull/58) 1.0.1.beta4
 
