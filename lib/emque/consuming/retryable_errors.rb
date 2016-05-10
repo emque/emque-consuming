@@ -1,6 +1,8 @@
 module Emque
   module Consuming
     module RetryableErrors
+      include Emque::Consuming::Helpers
+
       def retryable_errors
         config.retryable_errors
       end

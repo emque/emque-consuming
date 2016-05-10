@@ -6,6 +6,7 @@ module Emque
       module RabbitMq
         class Worker
           include Emque::Consuming::Actor
+          include Emque::Consuming::RetryableErrors
           trap_exit :actor_died
 
           attr_accessor :topic
@@ -117,14 +118,6 @@ module Emque
             ).bind(delayed_message_exchange)
 
             delayed_message_exchange
-          end
-
-          def retryable_errors
-            config.retryable_errors
-          end
-
-          def retryable_error_limit
-            config.retryable_error_limit
           end
 
           def log_prefix
