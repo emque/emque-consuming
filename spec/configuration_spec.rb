@@ -14,6 +14,45 @@ describe Emque::Consuming::Configuration do
     end
   end
 
+  describe "delayed_message_workers" do
+    it "has a default" do
+      config = Emque::Consuming::Configuration.new
+      expect(config.delayed_message_workers).to eq(1)
+    end
+
+    it "prefers the assigned value" do
+      config = Emque::Consuming::Configuration.new
+      config.delayed_message_workers = 2
+      expect(config.delayed_message_workers).to eq(2)
+    end
+  end
+
+  describe "retryable_errors" do
+    it "has a default" do
+      config = Emque::Consuming::Configuration.new
+      expect(config.retryable_errors).to eq([])
+    end
+
+    it "prefers the assigned value" do
+      config = Emque::Consuming::Configuration.new
+      config.retryable_errors = ["TestError"]
+      expect(config.retryable_errors).to eq(["TestError"])
+    end
+  end
+
+  describe "retryable_error_limit" do
+    it "has a default" do
+      config = Emque::Consuming::Configuration.new
+      expect(config.retryable_error_limit).to eq(3)
+    end
+
+    it "prefers the assigned value" do
+      config = Emque::Consuming::Configuration.new
+      config.retryable_error_limit = 4
+      expect(config.retryable_error_limit).to eq(4)
+    end
+  end
+
   describe "#to_hsh" do
     it "returns a hash" do
       config = Emque::Consuming::Configuration.new
@@ -22,9 +61,11 @@ describe Emque::Consuming::Configuration do
 
     it "returns the value of all the accessors" do
       accessors = [
-        :app_name, :auto_shutdown, :adapter, :env, :error_handlers,
-        :error_limit, :error_expiration, :log_level, :status_port, :status_host,
-        :status, :socket_path, :shutdown_handlers
+        :app_name, :adapter, :auto_shutdown, :delayed_message_workers,
+        :env, :enable_delayed_message, :error_handlers, :error_limit,
+        :error_expiration, :log_level, :retryable_errors,
+        :retryable_error_limit, :status_port, :status_host, :status,
+        :socket_path, :shutdown_handlers
       ]
       config = Emque::Consuming::Configuration.new
 

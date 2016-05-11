@@ -4,7 +4,7 @@ module Emque
   module Consuming
     module Adapters
       module RabbitMq
-        class RetryWorker
+        class ErrorWorker
           include Emque::Consuming::Helpers
 
           def initialize(connection)
@@ -43,7 +43,7 @@ module Emque
           end
 
           def log_prefix
-            "RabbitMQ RetryWorker:"
+            "RabbitMQ ErrorWorker:"
           end
 
           def retry_message(delivery_info, metadata, payload)

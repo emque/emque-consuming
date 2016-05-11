@@ -6,6 +6,7 @@ module Emque
       module RabbitMq
         class Worker
           include Emque::Consuming::Actor
+          include Emque::Consuming::RetryableErrors
           trap_exit :actor_died
 
           attr_accessor :topic
@@ -64,6 +65,10 @@ module Emque
 
           attr_accessor :name, :channel, :queue
 
+          def enable_delayed_message
+            config.enable_delayed_message
+          end
+
           def process_message(delivery_info, metadata, payload)
             begin
               logger.info "#{log_prefix} processing message #{metadata}"
@@ -73,9 +78,46 @@ module Emque
               )
               ::Emque::Consuming::Consumer.new.consume(:process, message)
               channel.ack(delivery_info.delivery_tag)
-            rescue StandardError
-              channel.nack(delivery_info.delivery_tag)
+            rescue StandardError => ex
+              if enable_delayed_message
+                publish_to_delayed_message(delivery_info, metadata, payload)
+              else
+                channel.nack(delivery_info.delivery_tag)
+              end
+            ensure
+              channel.ack(delivery_info.delivery_tag)
             end
+          end
+
+          def publish_to_delayed_message(delivery_info, metadata, payload)
+            headers = metadata[:headers] || {}
+            headers["x-delay"] = 1000
+            delayed_message_exchange.publish(payload, { :headers => headers })
+            channel.ack(delivery_info.delivery_tag)
+          end
+
+          def delayed_message_exchange
+            delayed_message_exchange = channel.exchange(
+              "emque.#{config.app_name}.delayed_message",
+              {
+                :type => "x-delayed-message",
+                :durable => true,
+                :auto_delete => false,
+                :arguments => {
+                  "x-delayed-type" => "direct",
+                }
+              }
+            )
+            channel.queue(
+              "emque.#{config.app_name}.delayed_message",
+              :durable => config.adapter.options[:durable],
+              :auto_delete => config.adapter.options[:auto_delete],
+              :arguments => {
+                "x-dead-letter-exchange" => "#{config.app_name}.error"
+              }
+            ).bind(delayed_message_exchange)
+
+            delayed_message_exchange
           end
 
           def log_prefix
