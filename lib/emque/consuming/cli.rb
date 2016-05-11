@@ -142,7 +142,9 @@ module Emque
             else
               options[:auto_shutdown] = false
             end
+          end
 
+          o.on(
             "--retry-error-limit N",
             "Max number of times to retry a retryable error"
           ) do |arg|

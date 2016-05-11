@@ -48,8 +48,8 @@ module Emque
         {}.tap { |config|
           [
             :app_name,
-            :auto_shutdown,
             :adapter,
+            :auto_shutdown,
             :delayed_message_workers,
             :env,
             :enable_delayed_message,
