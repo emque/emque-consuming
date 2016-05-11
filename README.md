@@ -59,6 +59,22 @@ emque <options> (start|stop|new|console|help) <name (new only)>
     # ...
 ```
 
+### Automatic Error Retries
+
+In 1.2.0 the ability to automatically retry specific types of errors was introduced.
+This depends on the [Delayed Message Exchange](https://github.com/rabbitmq/rabbitmq-delayed-message-exchange) plugin.  After
+[installing the plugin](https://github.com/rabbitmq/rabbitmq-delayed-message-exchange#installing),
+you'll need to configure emque consuming to utilize the plugin:
+
+```
+  config.enable_delayed_message = true # turn on retryable errors, defaults to false
+  config.retryable_errors = ["ExampleError"] # a comma delimited array of strings matching the error, defaults to any empty array ([])
+  config.retryable_error_limit = 4 # the number of retries to use before dead lettering the message, defaults to 3
+  config.delayed_message_workers = 3 # the number of workers processing delayed messages, defaults to 1
+```
+
+This will now allow you to retry known errors with an exponential backoff, which should help with transient errors!
+
 ### Custom
 
 Configure Emque::Consuming in your config/application.rb file. Here is an example:
