@@ -14,6 +14,7 @@ describe Emque::Consuming::Application do
 
     it "triggers a shutdown one the error_limit is reached" do
       Dummy::Application.config.error_limit = 2
+      Dummy::Application.config.auto_shutdown = true
       app = Dummy::Application.new
       Emque::Consuming::Runner.instance =
         double(:runner, :status => double(:status, :to_h => {}))
@@ -23,6 +24,21 @@ describe Emque::Consuming::Application do
 
       app.notice_error({ :test => "failure" })
       app.notice_error({ :test => "another failure" })
+    end
+
+    it "doesn't shutdown if the error_limit is disabled" do
+      Dummy::Application.config.error_limit = 2
+      Dummy::Application.config.auto_shutdown = false
+      app = Dummy::Application.new
+      Emque::Consuming::Runner.instance =
+        double(:runner, :status => double(:status, :to_h => {}))
+
+      expect(Emque::Consuming::Runner.instance)
+        .to receive(:stop).exactly(0).times
+
+      app.notice_error({ :test => "failure" })
+      app.notice_error({ :test => "another failure" })
+
     end
   end
 end

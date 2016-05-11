@@ -1,4 +1,8 @@
-## 1.0.0.beta4 — (unreleased)
+# Emque Consuming CHANGELOG
+
+- [Add in a configuration option to disable auto shutdown on reaching the error limit](https://github.com/emque/emque-consuming/pull/58) 1.1.3
+
+## 1.0.0.beta4
 
 ### BREAKING CHANGE - New Queue Names
 Applications updating to this version will have new queue names in RabbitMQ.
