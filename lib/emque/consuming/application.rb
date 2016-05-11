@@ -72,7 +72,7 @@ module Emque
       # private
 
       def auto_shutdown_enabled
-        config.auto_shutdown == "true"
+        config.auto_shutdown
       end
 
       def ensure_adapter_is_configured!
