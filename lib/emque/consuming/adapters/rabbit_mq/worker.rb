@@ -80,12 +80,14 @@ module Emque
               channel.ack(delivery_info.delivery_tag)
             rescue StandardError => ex
               if enable_delayed_message
-                publish_to_delayed_message(delivery_info, metadata, payload)
+                begin
+                  publish_to_delayed_message(delivery_info, metadata, payload)
+                rescue
+                  channel.nack(delivery_info.delivery_tag)
+                end
               else
                 channel.nack(delivery_info.delivery_tag)
               end
-            ensure
-              channel.ack(delivery_info.delivery_tag)
             end
           end
 
