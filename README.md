@@ -5,22 +5,21 @@
 Emque Consuming is a Ruby application framework that includes everything needed
 to create and run application capable of consuming messages from a message
 broker in a Pub/sub architecture. Messages can be produced with the
-[emque-producing](https://github.com/teamsnap/emque-producing) library.
+[emque-producing](https://github.com/emque/emque-producing) library.
 
 ## Adapters
 
 We currently only support RabbitMQ. If you would like to add your own adapter,
-take a look at [the adapters directory](https://github.com/teamsnap/emque-consuming/tree/socket-control/lib/emque/consuming/adapters).
+take a look at [the adapters directory](https://github.com/emque/emque-consuming/tree/master/lib/emque/consuming/adapters).
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "emque-consuming", :git => "https://github.com/teamsnap/emque-consuming"
+gem "emque-consuming"
 # make sure you have bunny for rabbitmq unless you're using a custom adapter
 gem "bunny", "~> 1.7"
-
 ```
 
 And then execute:
@@ -135,10 +134,10 @@ class EventsConsumer
   include Emque::Consuming.consumer
 
   def new_event(message)
-    # NOTE: message is an immutable [Virtus](https://github.com/solnic/virtus) Value Object.
-    # Check it out here: https://github.com/teamsnap/emque-consuming/blob/master/lib/emque/consuming/message.rb
+    # NOTE: message is an immutable Virtus (https://github.com/solnic/virtus) Value Object.
+    # Check it out here: https://github.com/emque/emque-consuming/blob/master/lib/emque/consuming/message.rb
 
-    # You don't have to use (pipe)[https://github.com/teamsnap/emque-consuming/blob/master/lib/emque/consuming/consumer/common.rb#L23], be we love it!
+    # You don't have to use pipe (https://github.com/teamsnap/pipe-ruby), but we love it!
     pipe(message, :through => [
       :shared_action, :do_something_with_new_event
     ])
@@ -215,7 +214,7 @@ bundle exec rspec
 
 FIRST: Read our style guides at https://github.com/teamsnap/guides/tree/master/ruby
 
-1. Fork it ( http://github.com/teamsnap/emque-consuming/fork )
+1. Fork it ( http://github.com/emque/emque-consuming/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
