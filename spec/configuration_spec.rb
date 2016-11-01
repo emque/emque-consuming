@@ -63,9 +63,9 @@ describe Emque::Consuming::Configuration do
       accessors = [
         :app_name, :adapter, :auto_shutdown, :delayed_message_workers,
         :env, :enable_delayed_message, :error_handlers, :error_limit,
-        :error_expiration, :log_level, :retryable_errors,
-        :retryable_error_limit, :status_port, :status_host, :status,
-        :socket_path, :shutdown_handlers
+        :error_expiration, :purge_queues_on_start, :log_level,
+        :retryable_errors, :retryable_error_limit, :status_port, :status_host,
+        :status, :socket_path, :shutdown_handlers
       ]
       config = Emque::Consuming::Configuration.new
 
