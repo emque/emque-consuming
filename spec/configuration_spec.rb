@@ -53,6 +53,19 @@ describe Emque::Consuming::Configuration do
     end
   end
 
+  describe "purge_queues_on_start" do
+    it "has a default" do
+      config = Emque::Consuming::Configuration.new
+      expect(config.purge_queues_on_start).to eq(false)
+    end
+
+    it "prefers the assigned value" do
+      config = Emque::Consuming::Configuration.new
+      config.purge_queues_on_start = true
+      expect(config.purge_queues_on_start).to eq(true)
+    end
+  end
+
   describe "#to_hsh" do
     it "returns a hash" do
       config = Emque::Consuming::Configuration.new

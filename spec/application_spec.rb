@@ -38,7 +38,6 @@ describe Emque::Consuming::Application do
 
       app.notice_error({ :test => "failure" })
       app.notice_error({ :test => "another failure" })
-
     end
   end
 end
