@@ -13,6 +13,7 @@ end
 require "timecop"
 require "fileutils"
 require_relative "dummy/config/application"
+require_relative "dummy/consumers/events_consumer"
 
 module VerifyAndResetHelpers
   def verify(object)
