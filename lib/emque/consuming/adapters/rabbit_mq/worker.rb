@@ -86,7 +86,11 @@ module Emque
                   channel.nack(delivery_info.delivery_tag)
                 end
               else
-                channel.nack(delivery_info.delivery_tag)
+                if retryable_errors.any? { |error| ex.class.to_s =~ /#{error}/ }
+                  retry_error(delivery_info, metadata, payload, ex)
+                else
+                  channel.nack(delivery_info.delivery_tag)
+                end
               end
             end
           end
