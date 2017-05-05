@@ -78,7 +78,9 @@ module Emque
               )
               ::Emque::Consuming::Consumer.new.consume(:process, message)
               channel.ack(delivery_info.delivery_tag)
-            rescue StandardError => ex
+            rescue StandardError => exception
+              logger.error "#{log_prefix} #{exception.class}: #{exception.message}"
+              exception.backtrace.each { |bt| logger.error "#{log_prefix} #{bt}" }
               if enable_delayed_message
                 begin
                   publish_to_delayed_message(delivery_info, metadata, payload)
