@@ -68,9 +68,11 @@ module Emque
               )
               ::Emque::Consuming::Consumer.new.consume(:process, message)
               channel.ack(delivery_info.delivery_tag)
-            rescue StandardError => ex
-              if retryable_errors.any? { |error| ex.class.to_s =~ /#{error}/ }
-                retry_error(delivery_info, metadata, payload, ex)
+            rescue StandardError => exception
+              logger.error "#{log_prefix} #{exception.class}: #{exception.message}"
+              exception.backtrace.each { |bt| logger.error "#{log_prefix} #{bt}" }
+              if retryable_errors.any? { |error| exception.class.to_s =~ /#{error}/ }
+                retry_error(delivery_info, metadata, payload, exception)
               else
                 channel.nack(delivery_info.delivery_tag)
               end
