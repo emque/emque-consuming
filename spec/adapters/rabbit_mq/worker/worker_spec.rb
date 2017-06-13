@@ -43,7 +43,6 @@ describe Emque::Consuming::Adapters::RabbitMq::Worker do
           :type => "dummy.spec"
         }
       }))
-
     end
 
     after do
