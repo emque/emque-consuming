@@ -15,7 +15,7 @@ module <%= @name %>
 [].tap { |options_out|
   if @options.has_key?(:app_name)
     options_out << "config.app_name = \"#{@options[:app_name]}\""
-  end 
+  end
   if @options.has_key?(:error_limit)
     options_out << "config.error_limit = #{@options[:error_limit]}"
   end

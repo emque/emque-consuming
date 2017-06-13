@@ -53,6 +53,19 @@ describe Emque::Consuming::Configuration do
     end
   end
 
+  describe "purge_queues_on_start" do
+    it "has a default" do
+      config = Emque::Consuming::Configuration.new
+      expect(config.purge_queues_on_start).to eq(false)
+    end
+
+    it "prefers the assigned value" do
+      config = Emque::Consuming::Configuration.new
+      config.purge_queues_on_start = true
+      expect(config.purge_queues_on_start).to eq(true)
+    end
+  end
+
   describe "#to_hsh" do
     it "returns a hash" do
       config = Emque::Consuming::Configuration.new
@@ -63,9 +76,9 @@ describe Emque::Consuming::Configuration do
       accessors = [
         :app_name, :adapter, :auto_shutdown, :delayed_message_workers,
         :env, :enable_delayed_message, :error_handlers, :error_limit,
-        :error_expiration, :log_level, :retryable_errors,
-        :retryable_error_limit, :status_port, :status_host, :status,
-        :socket_path, :shutdown_handlers
+        :error_expiration, :purge_queues_on_start, :log_level,
+        :retryable_errors, :retryable_error_limit, :status_port, :status_host,
+        :status, :socket_path, :shutdown_handlers
       ]
       config = Emque::Consuming::Configuration.new
 

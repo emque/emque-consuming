@@ -5,9 +5,9 @@ module Emque
     class Configuration
       attr_accessor :app_name, :adapter, :auto_shutdown,
         :delayed_message_workers, :enable_delayed_message, :error_handlers,
-        :error_limit, :error_expiration, :retryable_errors,
-        :retryable_error_limit, :status, :status_port, :status_host,
-        :socket_path, :shutdown_handlers
+        :error_limit, :error_expiration, :purge_queues_on_start,
+        :retryable_errors, :retryable_error_limit, :status, :status_port,
+        :status_host, :socket_path, :shutdown_handlers
       attr_writer :env, :log_level
 
       def initialize
@@ -19,6 +19,7 @@ module Emque
         @error_limit             = 5
         @error_expiration        = 3600 # 60 minutes
         @log_level               = nil
+        @purge_queues_on_start   = false
         @retryable_errors        = []
         @retryable_error_limit   = 3
         @status_port             = 10000
@@ -56,6 +57,7 @@ module Emque
             :error_handlers,
             :error_limit,
             :error_expiration,
+            :purge_queues_on_start,
             :log_level,
             :retryable_errors,
             :retryable_error_limit,

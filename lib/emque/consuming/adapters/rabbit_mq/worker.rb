@@ -33,17 +33,22 @@ module Emque
 
             self.queue =
               channel
-                .queue(
-                  "emque.#{config.app_name}.#{topic}",
-                  :durable => config.adapter.options[:durable],
-                  :auto_delete => config.adapter.options[:auto_delete],
-                  :arguments => {
-                    "x-dead-letter-exchange" => "#{config.app_name}.error"
-                  }
-                )
-                .bind(
-                  channel.fanout(topic, :durable => true, :auto_delete => false)
-                )
+              .queue(
+                "emque.#{config.app_name}.#{topic}",
+                :durable => config.adapter.options[:durable],
+                :auto_delete => config.adapter.options[:auto_delete],
+                :arguments => {
+                  "x-dead-letter-exchange" => "#{config.app_name}.error"
+                }
+              )
+              .bind(
+                channel.fanout(topic, :durable => true, :auto_delete => false)
+              )
+
+            if config.purge_queues_on_start
+              logger.info "#{log_prefix} is purging it's queue"
+              queue.purge
+            end
           end
 
           def start
