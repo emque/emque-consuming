@@ -1,4 +1,6 @@
 require "bunny"
+require_relative "error_worker"
+require_relative "delayed_message_worker"
 
 module Emque
   module Consuming

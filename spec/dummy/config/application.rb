@@ -7,14 +7,14 @@ module Emque
   module Consuming
     module Adapters
       module RabbitMq
-        def self.default_options; {}; end
+        def self.default_options; { :durable => true }; end
         def self.load; end
         def self.manager
           Emque::Consuming::Adapters::RabbitMq::Manager
         end
       end
       module TestAdapter
-        def self.default_options; {}; end
+        def self.default_options; { :durable => true }; end
         def self.load; end
         def self.manager
           Emque::Consuming::Adapters::TestAdapter::Manager

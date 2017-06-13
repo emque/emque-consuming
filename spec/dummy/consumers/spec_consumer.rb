@@ -1,6 +1,6 @@
-class EventsConsumer
+class SpecConsumer
   include Emque::Consuming.consumer
 
-  def new_event(message)
+  def test(message)
   end
 end
