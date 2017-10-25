@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "celluloid", "0.16.0"
   spec.add_dependency "dante",     "~> 0.2.0"
-  spec.add_dependency "oj",        "~> 2.11.4"
+  spec.add_dependency "oj",        "~> 2.18.5"
   spec.add_dependency "virtus",    "~> 1.0"
   spec.add_dependency "puma",      "~> 2.12.0"
   spec.add_dependency "pipe-ruby", "~> 0.2.0"
