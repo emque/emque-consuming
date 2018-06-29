@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
-  spec.required_ruby_version = ">= 2.1"
+  spec.required_ruby_version = ">= 2.3"
 
   spec.add_dependency "celluloid", "0.16.0"
   spec.add_dependency "dante",     "~> 0.2.0"
@@ -30,7 +30,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 1.7"
   spec.add_development_dependency "rake",    "~> 10.4.2"
   spec.add_development_dependency "rspec",   "~> 3.3"
-  spec.add_development_dependency "bunny",   "~> 1.7"
+  spec.add_development_dependency "bunny",   "~> 2.11.0"
   spec.add_development_dependency "timecop", "~> 0.7.1"
   spec.add_development_dependency "daemon_controller", "~> 1.2.0"
 end
