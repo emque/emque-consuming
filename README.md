@@ -19,7 +19,7 @@ Add this line to your application's Gemfile:
 ```ruby
 gem "emque-consuming"
 # make sure you have bunny for rabbitmq unless you're using a custom adapter
-gem "bunny", "~> 1.7"
+gem "bunny", "~> 2.11.0"
 ```
 
 And then execute:
