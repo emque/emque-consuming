@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["oss@teamsnap.com"]
   spec.summary       = %q{Microservices framework for Ruby}
   spec.summary       = %q{Microservices framework for Ruby}
-  spec.homepage      = "https://github.com/teamsnap/emque-consuming"
+  spec.homepage      = "https://github.com/emque/emque-consuming"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "celluloid", "0.16.0"
   spec.add_dependency "dante",     "~> 0.2.0"
-  spec.add_dependency "oj",        "~> 2.18.5"
+  spec.add_dependency "oj",        [">= 2.11.5", "< 3.0"]
   spec.add_dependency "virtus",    "~> 1.0"
   spec.add_dependency "puma",      "~> 2.12.0"
   spec.add_dependency "pipe-ruby", "~> 0.2.0"
