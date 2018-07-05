@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["oss@teamsnap.com"]
   spec.summary       = %q{Microservices framework for Ruby}
   spec.summary       = %q{Microservices framework for Ruby}
-  spec.homepage      = "https://github.com/teamsnap/emque-consuming"
+  spec.homepage      = "https://github.com/emque/emque-consuming"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
