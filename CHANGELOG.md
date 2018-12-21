@@ -1,5 +1,6 @@
 # Emque Consuming CHANGELOG
 
+- [Update the pipe-ruby gem to 0.3.1](https://github.com/emque/emque-consuming/pull/73) 1.4.0
 - [Update minimum Ruby version to 2.3](https://github.com/emque/emque-consuming/pull/68) 1.3.0
 - [Update the oj gem to 2.18.5](https://github.com/emque/emque-consuming/pull/67) 1.2.4
 - [Add error logging when an exception is thrown.](https://github.com/emque/emque-consuming/pull/65) 1.2.3
