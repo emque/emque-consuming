@@ -13,7 +13,6 @@ module Emque
         end
 
         def start
-          puma.options[:app] = Handler.new
           @thread = Thread.new { puma.run }
           status
         end
@@ -21,22 +20,19 @@ module Emque
         private
 
         def initialize_puma
-          self.puma =
-            Puma::CLI.new(
-              [],
-              Puma::Events.new(
-                Logger.new(:info),
-                Logger.new(:error)
-              )
-            )
+          conf = Puma::Configuration.new do |user_config|
+            user_config.bind "tcp://#{config.status_host}:#{config.status_port}"
+            user_config.app Handler.new
+          end
 
-          puma.options[:binds] = [
-            "tcp://#{config.status_host}"+
-            ":#{config.status_port}"
-          ]
+          self.puma = Puma::Launcher.new(conf, :events => Puma::Events.null)
 
           puma.define_singleton_method :set_process_title do
             # we don't want puma to take over the process name
+          end
+
+          puma.define_singleton_method :setup_signals do
+            # we don't want puma to handle signals
           end
         end
 

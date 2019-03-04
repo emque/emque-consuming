@@ -1,5 +1,6 @@
 # Emque Consuming CHANGELOG
 
+- [Update the puma gem to allow v3](https://github.com/emque/emque-consuming/pull/72) 1.5.0
 - [Disable pipe-ruby `raise_on_error` option to prevent duplicate erorrs](https://github.com/emque/emque-consuming/pull/74) 1.4.0
 - [Update minimum Ruby version to 2.3](https://github.com/emque/emque-consuming/pull/68) 1.3.0
 - [Update the oj gem to 2.18.5](https://github.com/emque/emque-consuming/pull/67) 1.2.4
