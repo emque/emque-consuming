@@ -65,8 +65,7 @@ module Emque
               logger.debug "#{log_prefix} payload #{payload}"
               message = Emque::Consuming::Message.new(
                 :original => payload
-              )
-              ::Emque::Consuming::Consumer.new.consume(:process, message)
+              ) ::Emque::Consuming::Consumer.new.consume(:process, message)
               channel.ack(delivery_info.delivery_tag)
             rescue StandardError => exception
               if retryable_errors.any? { |error| exception.class.to_s =~ /#{error}/ }
