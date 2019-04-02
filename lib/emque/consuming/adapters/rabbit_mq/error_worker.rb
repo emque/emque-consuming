@@ -56,8 +56,6 @@ module Emque
               ::Emque::Consuming::Consumer.new.consume(:process, message)
               channel.ack(delivery_info.delivery_tag)
             rescue StandardError => exception
-              logger.error "#{log_prefix} #{exception.class}: #{exception.message}"
-              exception.backtrace.each { |bt| logger.error "#{log_prefix} #{bt}" }
               channel.nack(delivery_info.delivery_tag)
             end
           end
