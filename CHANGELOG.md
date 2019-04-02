@@ -1,5 +1,6 @@
 # Emque Consuming CHANGELOG
 
+- [Re-enable pipe-ruby `raise_on_error` option to fix automatic retries directing messages to the error queue](https://github.com/emque/emque-consuming/pull/) 1.6.0
 - [Update the puma gem to allow v3](https://github.com/emque/emque-consuming/pull/72) 1.5.0
 - [Disable pipe-ruby `raise_on_error` option to prevent duplicate erorrs](https://github.com/emque/emque-consuming/pull/74) 1.4.0
 - [Update minimum Ruby version to 2.3](https://github.com/emque/emque-consuming/pull/68) 1.3.0
