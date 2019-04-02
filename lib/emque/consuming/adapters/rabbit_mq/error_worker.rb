@@ -15,7 +15,7 @@ module Emque
           def retry_errors
             logger.info "#{log_prefix} starting"
             channel.open if channel.closed?
-            error_queue.message_count.times do
+            [error_queue.message_count, 100].min.times do
               delivery_info, properties, payload = error_queue.pop(
                 {:manual_ack => true}
               )
