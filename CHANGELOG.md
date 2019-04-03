@@ -1,6 +1,6 @@
 # Emque Consuming CHANGELOG
 
-- [When retrying errors, publish them to their queues in order to provide retry concurrency](https://github.com/emque/emque-consuming/pull/76) 1.8.0
+- [When retrying errors, re-publish them to their original queues in order to provide retry concurrency](https://github.com/emque/emque-consuming/pull/76) 1.8.0
 - [Update Rake to fix CVE-2020-8130](https://github.com/emque/emque-consuming/pull/80) (1.7.1)
 - [Update pipe-ruby to remove error handling](https://github.com/emque/emque-consuming/pull/78) 1.7.0
 - [Fixes bug with Bunny 2.12 failing when exchange names are symbols](https://github.com/emque/emque-consuming/pull/77) 1.6.1

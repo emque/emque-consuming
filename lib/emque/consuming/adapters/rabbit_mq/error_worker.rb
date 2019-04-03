@@ -50,11 +50,16 @@ module Emque
             begin
               logger.info "#{log_prefix} processing message #{metadata}"
               logger.debug "#{log_prefix} payload #{payload}"
+
               message = Oj.load(payload)
               topic = message.fetch(:metadata).fetch(:topic)
               headers = metadata[:headers] || {}
-              x  = channel.default_exchange
-              x.publish(payload, :routing_key => "emque.#{config.app_name}.#{topic}", :headers => headers)
+              channel.default_exchange.publish(
+                payload,
+                :routing_key => "emque.#{config.app_name}.#{topic}",
+                :headers => headers
+              )
+
               channel.ack(delivery_info.delivery_tag)
             rescue StandardError => exception
               channel.nack(delivery_info.delivery_tag)
