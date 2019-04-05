@@ -15,7 +15,7 @@ module Emque
           def retry_errors
             logger.info "#{log_prefix} starting"
             channel.open if channel.closed?
-            error_queue.message_count.times do
+            [error_queue.message_count, 100].min.times do
               delivery_info, properties, payload = error_queue.pop(
                 {:manual_ack => true}
               )
@@ -56,8 +56,6 @@ module Emque
               ::Emque::Consuming::Consumer.new.consume(:process, message)
               channel.ack(delivery_info.delivery_tag)
             rescue StandardError => exception
-              logger.error "#{log_prefix} #{exception.class}: #{exception.message}"
-              exception.backtrace.each { |bt| logger.error "#{log_prefix} #{bt}" }
               channel.nack(delivery_info.delivery_tag)
             end
           end
