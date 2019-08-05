@@ -41,7 +41,11 @@ module Emque
                 }
               )
               .bind(
-                channel.fanout(topic.to_s, :durable => true, :auto_delete => false)
+                channel.fanout(
+                  topic.to_s, 
+                  :durable => true, 
+                  :auto_delete => false,
+                 )
               )
           end
 
