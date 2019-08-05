@@ -1,5 +1,6 @@
 # Emque Consuming CHANGELOG
 
+- [Fixes bug with Bunny 2.12 failing when exchange names are symbols](https://github.com/emque/emque-consuming/pull/77) 1.6.1
 - [Re-enable pipe-ruby `raise_on_error` option to fix automatic retries directing messages to the error queue](https://github.com/emque/emque-consuming/pull/75) 1.6.0
 - [Update the puma gem to allow v3](https://github.com/emque/emque-consuming/pull/72) 1.5.0
 - [Disable pipe-ruby `raise_on_error` option to prevent duplicate erorrs](https://github.com/emque/emque-consuming/pull/74) 1.4.0

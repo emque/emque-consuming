@@ -31,19 +31,22 @@ module Emque
               channel.prefetch(config.adapter.options[:prefetch])
             end
 
-            self.queue =
-              channel
-                .queue(
-                  "emque.#{config.app_name}.#{topic}",
-                  :durable => config.adapter.options[:durable],
-                  :auto_delete => config.adapter.options[:auto_delete],
-                  :arguments => {
-                    "x-dead-letter-exchange" => "#{config.app_name}.error"
-                  }
-                )
-                .bind(
-                  channel.fanout(topic, :durable => true, :auto_delete => false)
-                )
+            self.queue = channel
+              .queue(
+                "emque.#{config.app_name}.#{topic}",
+                :durable => config.adapter.options[:durable],
+                :auto_delete => config.adapter.options[:auto_delete],
+                :arguments => {
+                  "x-dead-letter-exchange" => "#{config.app_name}.error"
+                }
+              )
+              .bind(
+                channel.fanout(
+                  topic.to_s, 
+                  :durable => true, 
+                  :auto_delete => false,
+                 )
+              )
           end
 
           def start
