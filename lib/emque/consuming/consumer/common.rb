@@ -23,6 +23,7 @@ module Emque
           send(handler_method, message)
         rescue => e
           handle_error(e, handler_method, message)
+          raise
         end
 
         def pipe_config
