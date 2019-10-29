@@ -16,18 +16,17 @@ module Emque
         def self.included(descendant)
           descendant.class_eval do
             attr_reader :message
-            private :handle_error, :pipe
           end
         end
 
         def consume(handler_method, message)
           send(handler_method, message)
+        rescue => e
+          handle_error(e, handler_method, message)
         end
 
         def pipe_config
           @pipe_config ||= Pipe::Config.new(
-            :error_handlers => [method(:handle_error)],
-            :raise_on_error => true,
             :stop_on => ->(msg, _, _) { !(msg.respond_to?(:continue?) && msg.continue?) }
           )
         end
