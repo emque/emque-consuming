@@ -11,6 +11,9 @@ module Emque
 
       def process(message)
         pipe(message, :through => [:parse, :route])
+      rescue => e
+        handle_error(e, message)
+        raise
       end
 
       private
@@ -28,6 +31,28 @@ module Emque
           message.values.fetch(:metadata).fetch(:type),
           message
         )
+      end
+
+      def handle_error(e, subject)
+        context = {
+          :consumer => self.class.name,
+          :message => {
+            :current => subject.values,
+            :original => subject.original
+          },
+          :topic => subject.topic
+        }
+
+        # log the error by default
+        Emque::Consuming.logger.error("Error consuming message #{e}")
+        Emque::Consuming.logger.error(context)
+        Emque::Consuming.logger.error e.backtrace.join("\n") unless e.backtrace.nil?
+
+        Emque::Consuming.config.error_handlers.each do |handler|
+          handler.call(e, context)
+        end
+
+        Emque::Consuming.application.instance.notice_error(context)
       end
     end
   end
