@@ -1,5 +1,6 @@
 # Emque Consuming CHANGELOG
 
+- [Update Rake to fix CVE-2020-8130](https://github.com/emque/emque-consuming/pull/79) 1.7.1
 - [Update pipe-ruby to remove error handling](https://github.com/emque/emque-consuming/pull/78) 1.7.0
 - [Fixes bug with Bunny 2.12 failing when exchange names are symbols](https://github.com/emque/emque-consuming/pull/77) 1.6.1
 - [Re-enable pipe-ruby `raise_on_error` option to fix automatic retries directing messages to the error queue](https://github.com/emque/emque-consuming/pull/75) 1.6.0
