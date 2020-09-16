@@ -18,6 +18,10 @@ module Emque
           def initialize(connection)
             self.channel = connection.create_channel
 
+            if config.adapter.options[:prefetch]
+              channel.prefetch(config.adapter.options[:prefetch])
+            end
+
             self.delayed_message_exchange = channel.exchange(
               "emque.#{config.app_name}.delayed_message",
               {
