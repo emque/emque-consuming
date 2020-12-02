@@ -1,5 +1,6 @@
 # Emque Consuming CHANGELOG
 
+- [Migrate to GitHub Actions](https://github.com/emque/emque-consuming/pull/82) (1.8.1)
 - [Add prefetch for DelayedMessageWorker](https://github.com/emque/emque-consuming/pull/81) (1.8.0)
 - [Update Rake to fix CVE-2020-8130](https://github.com/emque/emque-consuming/pull/80) (1.7.1)
 - [Update pipe-ruby to remove error handling](https://github.com/emque/emque-consuming/pull/78) 1.7.0
