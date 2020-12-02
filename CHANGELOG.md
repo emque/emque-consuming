@@ -1,5 +1,6 @@
 # Emque Consuming CHANGELOG
 
+- [Update the puma gem to v4](https://github.com/emque/emque-consuming/pull/83) (1.9.0)
 - [Migrate to GitHub Actions](https://github.com/emque/emque-consuming/pull/82) (1.8.1)
 - [Add prefetch for DelayedMessageWorker](https://github.com/emque/emque-consuming/pull/81) (1.8.0)
 - [Update Rake to fix CVE-2020-8130](https://github.com/emque/emque-consuming/pull/80) (1.7.1)
