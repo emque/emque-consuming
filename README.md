@@ -1,7 +1,7 @@
 # Emque::Consuming
 
 ![CI](https://github.com/emque/emque-consuming/workflows/CI/badge.svg)
-[![Gem Version](https://badge.fury.io/rb/teamsnap_rb.svg)](https://badge.fury.io/rb/emque-consuming)
+[![Gem Version](https://badge.fury.io/rb/emque-consuming.svg)](https://badge.fury.io/rb/emque-consuming)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 Emque Consuming is a Ruby application framework that includes everything needed
