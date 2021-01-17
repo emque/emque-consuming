@@ -1,6 +1,5 @@
 require "fileutils"
 require "socket"
-require "oj"
 
 module Emque
   module Consuming
@@ -8,7 +7,7 @@ module Emque
       def self.send(command:, socket_path: "tmp/emque.sock", args: [])
         if File.exists?(socket_path)
           socket = UNIXSocket.new(socket_path)
-          socket.send(Oj.dump({
+          socket.send(JSON.generate({
             :command => command,
             :args => args
           }, :mode => :compat), 0)
