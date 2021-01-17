@@ -9,8 +9,8 @@ module Emque
         end
       end
 
-      def self.initialize_logger(log_target = STDOUT)
-        @logger = Logger.new(log_target)
+      def self.initialize_logger
+        @logger = Logger.new(STDOUT)
         @logger.level = Logger::INFO
         @logger.formatter = LogFormatter.new
         @logger
@@ -21,7 +21,7 @@ module Emque
       end
 
       def self.logger=(log)
-        @logger = log || Logger.new("/dev/null")
+        @logger = log || Logger.new(STDOUT)
       end
 
       def logger

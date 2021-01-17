@@ -51,7 +51,7 @@ module Emque
       end
 
       def initialize_logger
-        Emque::Consuming::Logging.initialize_logger(logfile)
+        Emque::Consuming::Logging.initialize_logger
         Emque::Consuming.logger.level = config.log_level
         Celluloid.logger = Emque::Consuming.logger
       end
@@ -67,13 +67,6 @@ module Emque
         app_files.each do |app_file|
           klass = Inflecto.classify(File.basename(app_file, ".rb"))
           emque_autoload(klass.to_sym, app_file)
-        end
-      end
-
-      def logfile
-        @logfile ||= File.join(root, "log/#{emque_env}.log").tap do |path|
-          directory = File.dirname(path)
-          Dir.mkdir(directory) unless File.exist?(directory)
         end
       end
 
