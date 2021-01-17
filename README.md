@@ -168,7 +168,6 @@ emque <options> (start|stop|new|console|help) <name (new only)>
     -P, --pidfile PATH               Store pid in PATH
     -S, --socket PATH                PATH to the application's unix socket
     -b, --bind IP:PORT               IP & port for the http status application to listen on.
-    -d, --daemon                     Daemonize the application
     -e, --error-limit N              Set the max errors before application suicide
     -s, --status                     Run the http status application
     -x, --error-expiration SECONDS   Expire errors after SECONDS

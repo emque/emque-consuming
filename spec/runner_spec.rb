@@ -77,18 +77,6 @@ describe Emque::Consuming::Runner do
       expect { runner.start }.to raise_error(SystemExit)
     end
 
-    it "daemonizes the process if the daemon option is set" do
-      runner = Emque::Consuming::Runner.new(:daemon => true)
-      expect(runner).to receive(:receivers).at_least(1).times.and_return([])
-      expect(runner).to receive(:persist).and_return(double(:join => true))
-      expect(runner).to receive(:pid)
-        .at_least(1).times
-        .and_return(double(:running? => false, :write => true))
-
-      expect(runner).to receive(:daemonize!).and_return(true)
-      runner.start
-    end
-
     it "creates a unix socket receiver and starts it" do
       runner = Emque::Consuming::Runner.new
       expect(runner).to receive(:persist).and_return(double(:join => true))

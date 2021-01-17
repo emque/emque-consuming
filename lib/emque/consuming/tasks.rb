@@ -84,13 +84,11 @@ module Emque
             puts with_transmitter(:send, :status)
           end
 
-          desc "Start a new instance (accepts PIDFILE, DAEMON)"
+          desc "Start a new instance (accepts PIDFILE)"
           task :start do
-            daemon = ENV.fetch("DAEMON", false)
             pidfile = ENV.fetch("PIDFILE", "tmp/pids/#{config.app_name}.pid")
 
             Emque::Consuming::Runner.new({
-              :daemon => daemon,
               :pidfile => pidfile
             }).start
           end

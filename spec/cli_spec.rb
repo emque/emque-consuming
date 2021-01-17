@@ -34,7 +34,6 @@ describe Emque::Consuming::Cli do
         "--env", "test"
       ]
       expected_options = {
-        :daemon => true,
         :pidfile => "tmp/pidfile.pid",
         :socket_path => "tmp/socket.sock",
         :error_limit => 20,
@@ -55,7 +54,6 @@ describe Emque::Consuming::Cli do
     describe "with no options" do
       it "passes the default options to the runner" do
         expected_options = {
-          :daemon => false
         }
         runner = double(:runner, :send => true)
 
@@ -95,7 +93,6 @@ describe Emque::Consuming::Cli do
       command = ["new", application_name]
       valid_args = [
         "-P", "tmp/pidfile.pid",
-        "-d",
         "-S", "tmp/socket.sock",
         "-e", "20",
         "-x", "1000",
@@ -103,7 +100,6 @@ describe Emque::Consuming::Cli do
         "--env", "test"
       ]
       expected_options = {
-        :daemon => true,
         :pidfile => "tmp/pidfile.pid",
         :socket_path => "tmp/socket.sock",
         :error_limit => 20,

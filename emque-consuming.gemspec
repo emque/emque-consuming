@@ -32,5 +32,4 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec",   "~> 3.3"
   spec.add_development_dependency "bunny",   "~> 2.11.0"
   spec.add_development_dependency "timecop", "~> 0.7.1"
-  spec.add_development_dependency "daemon_controller", "~> 1.2.0"
 end

@@ -68,7 +68,6 @@ module Emque
 
       def setup_options
         @options = {
-          :daemon => false
         }
 
         @parser = OptionParser.new { |o|
@@ -93,10 +92,6 @@ module Emque
             port = port.to_i
             options[:status_host] = ip if ip =~ IP_REGEX
             options[:status_port] = port if port > 0 && port <= 65535
-          end
-
-          o.on("-d", "--daemon", "Daemonize the application") do
-            options[:daemon] = true
           end
 
           o.on(

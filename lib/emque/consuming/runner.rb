@@ -60,7 +60,6 @@ module Emque
 
       def start
         exit_if_already_running!
-        daemonize! if daemonize?
         write_pidfile!
         @persist = Thread.new { loop { sleep 1 } }
         set_process_title
@@ -103,23 +102,6 @@ module Emque
 
       def config
         Emque::Consuming.application.config
-      end
-
-      def daemonize?
-        options[:daemon]
-      end
-
-      def daemonize!
-        Process.daemon(true, true)
-
-        [$stdout, $stderr].each do |io|
-          File.open(Emque::Consuming.application.logfile, "ab") do |f|
-            io.reopen(f)
-          end
-          io.sync = true
-        end
-
-        $stdin.reopen("/dev/null")
       end
 
       def default_pidfile
