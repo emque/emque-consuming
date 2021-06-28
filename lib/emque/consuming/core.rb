@@ -51,7 +51,7 @@ module Emque
       end
 
       def initialize_logger
-        Emque::Consuming::Logging.initialize_logger
+        Emque::Consuming::Logging.initialize_logger(logfile)
         Emque::Consuming.logger.level = config.log_level
         Celluloid.logger = Emque::Consuming.logger
       end
@@ -70,12 +70,19 @@ module Emque
         end
       end
 
+      def logfile
+        @logfile ||= File.join(root, "log/#{emque_env}.log").tap do |path|
+          directory = File.dirname(path)
+          Dir.mkdir(directory) unless File.exist?(directory)
+        end
+      end
+
       def logger
         Emque::Consuming.logger
       end
 
       def emque_env
-        config.env_var || ENV["EMQUE_ENV"] || ENV["RACK_ENV"] || "development"
+        config.env_var || ENV["EMQUE_ENV"] || "development"
       end
     end
   end
