@@ -12,7 +12,7 @@ broker in a Pub/sub architecture. Messages can be produced with the
 ## Adapters
 
 We currently only support RabbitMQ. If you would like to add your own adapter,
-take a look at [the adapters directory](https://github.com/emque/emque-consuming/tree/master/lib/emque/consuming/adapters).
+take a look at [the adapters directory](https://github.com/emque/emque-consuming/tree/main/lib/emque/consuming/adapters).
 
 ## Installation
 
@@ -137,7 +137,7 @@ class EventsConsumer
 
   def new_event(message)
     # NOTE: message is an immutable Virtus (https://github.com/solnic/virtus) Value Object.
-    # Check it out here: https://github.com/emque/emque-consuming/blob/master/lib/emque/consuming/message.rb
+    # Check it out here: https://github.com/emque/emque-consuming/blob/main/lib/emque/consuming/message.rb
 
     # You don't have to use pipe (https://github.com/teamsnap/pipe-ruby), but we love it!
     pipe(message, :through => [
