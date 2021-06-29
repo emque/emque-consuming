@@ -42,7 +42,7 @@ module Emque
       end
 
       def log_formatter
-        @log_formatter ||= Logger::Formatter
+        @log_formatter ||= ::Logger::Formatter.new
       end
 
       def set_adapter(name, options = {})

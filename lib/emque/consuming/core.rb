@@ -50,8 +50,9 @@ module Emque
         )
       end
 
-      def initialize_logger
-        Emque::Consuming::Logging.initialize_logger(logfile)
+      def initialize_logger(daemonized: false)
+        target = daemonized ? logfile : STDOUT
+        Emque::Consuming::Logging.initialize_logger(target)
         Emque::Consuming.logger.level = config.log_level
         Emque::Consuming.logger.formatter = config.log_formatter
         Celluloid.logger = Emque::Consuming.logger
