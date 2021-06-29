@@ -8,7 +8,7 @@ module Emque
         :error_limit, :error_expiration, :retryable_errors,
         :retryable_error_limit, :status, :status_port, :status_host,
         :socket_path, :shutdown_handlers
-      attr_writer :env, :log_level
+      attr_writer :env, :log_level, :log_formatter
 
       def initialize
         @app_name                = ""
@@ -19,6 +19,7 @@ module Emque
         @error_limit             = 5
         @error_expiration        = 3600 # 60 minutes
         @log_level               = nil
+        @log_formatter           = nil
         @retryable_errors        = []
         @retryable_error_limit   = 3
         @status_port             = 10000
@@ -38,6 +39,10 @@ module Emque
 
       def log_level
         @log_level ||= Logger::INFO
+      end
+
+      def log_formatter
+        @log_formatter ||= Logger::Formatter
       end
 
       def set_adapter(name, options = {})

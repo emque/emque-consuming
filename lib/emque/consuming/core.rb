@@ -53,6 +53,7 @@ module Emque
       def initialize_logger
         Emque::Consuming::Logging.initialize_logger(logfile)
         Emque::Consuming.logger.level = config.log_level
+        Emque::Consuming.logger.formatter = config.log_formatter
         Celluloid.logger = Emque::Consuming.logger
       end
 
