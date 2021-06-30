@@ -23,7 +23,9 @@ module Emque
         self.receivers = []
         self.status = Emque::Consuming::Status.new
         apply_options
-        Emque::Consuming.application.initialize_logger
+        Emque::Consuming
+          .application
+          .initialize_logger(daemonized: options.fetch(:daemon) { false })
         self.class.instance = self
         self.pidfile = options.fetch(:pidfile, default_pidfile)
         self.pid = Emque::Consuming::Pidfile.new(pidfile)
