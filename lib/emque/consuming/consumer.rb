@@ -1,4 +1,3 @@
-require "oj"
 require_relative "consumer/common"
 require_relative "retryable_errors"
 

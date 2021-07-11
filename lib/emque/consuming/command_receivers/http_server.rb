@@ -72,7 +72,7 @@ module Emque
               200,
               {},
               [
-                Oj.dump(
+                JSON.generate(
                   runner.status.to_hsh.merge(additional),
                   :mode => :compat
                 )
